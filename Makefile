@@ -14,13 +14,14 @@
 
 NAME = ircserver
 
-SRCS =  main.cpp \
+SRCS =  *.cpp \
 		# server/*.cpp \
 		# client/*.cpp \
 		# message/*.cpp \
 		# bot/*cpp \
 
-INCLUDES =  color.h \
+INCLUDES =  *.h \
+			*.hpp \
 			# server/*.hpp \
 			# client/*.hpp \
 			# message/*.hpp \
@@ -30,10 +31,10 @@ CC = c++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:.cpp=.o) 
 
 $(NAME): $(OBJS)
-	$(CC) $(FLAGS) -o $(NAME) $(SRCS) -I$(INCLUDES)
+	$(CC) $(FLAGS)  $(SRCS) -I$(INCLUDES) 
 
 all : $(NAME)
 

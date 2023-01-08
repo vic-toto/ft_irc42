@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <iostream> 
 #include <signal.h>
+#include "Server.hpp"
 
 bool server_run = true;
 
@@ -26,8 +27,11 @@ int main(int argc, char **argv)
 		}
 		signal(SIGINT, &sigint);
 		std::cout << COLOR_GREEN << "Setting up server..." << std::endl;
+		// create server
+		Server Server(std::atoi(argv[1]), argv[2]);
+		//initialise server TO DO 
 
-		//do all server stuff here
+		std::cout << COLOR_GREEN << "IRC Server is up and running...\n" << COLOR_DEFAULT;
 		
 		return (EXIT_SUCCESS);
 		}
