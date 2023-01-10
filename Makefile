@@ -34,7 +34,7 @@ FLAGS = -Wall -Wextra -Werror -std=c++98
 OBJS = $(SRCS:.cpp=.o) 
 
 $(NAME): $(OBJS)
-	$(CC) $(FLAGS)  $(SRCS) -I$(INCLUDES) 
+	$(CC) $(FLAGS)  $(SRCS) -o $(NAME) -I $(INCLUDES) 
 
 all : $(NAME)
 

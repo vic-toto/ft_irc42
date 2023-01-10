@@ -1,0 +1,14 @@
+How to do ft_irc
+
+First of all, it is a configuration project. 
+The client does basically everything for you by forwarding some messages
+that do a specific thing: the job is to get the server to do specific things
+based on the cmd they get from the client 
+
+The main classes to create are 
+
+SERVER - duh
+USER - one for every client, saves User ID, Nickname and password directly from client
+    - needs to be able to be set to super User
+    - needs to be able to be silent and limited to some things 
+CHANNEL - creates a new sub-chat in the chat
