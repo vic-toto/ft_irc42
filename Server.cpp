@@ -51,7 +51,7 @@ int	Server::init()
 	listen(server_socket, SOMAXCONN); //sets socket in listening state
 	fcntl(server_socket, F_SETFL, O_NONBLOCK); //sets socket to non-blocking
     listen_socket = server_socket;
-	std::cout << COLOR_GREEN << "IRC Server successfully initialised :)\n" << COLOR_DEFAULT;
+	std::cout << COLOR_GREEN << "IRC Server successfully initialised :) 🎉\n" << COLOR_DEFAULT;
 	return 0;
 }
 
