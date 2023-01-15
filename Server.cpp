@@ -43,20 +43,53 @@ int	Server::init()
 	}
 	if ((bind(server_socket, (sockaddr*)&sock, sizeof(sock))) < 0) //assigns to serversocket, port specified in socketstructure, returns error if socket in use
 	{
-		close (server_socket);
-		throw std::runtime_error(strerror(errno));
-		return 1;
+		//close (server_socket);
+		//throw std::runtime_error(strerror(errno));
+		//return 1;
 	}
-	printf("ciao\n");
 	listen(server_socket, SOMAXCONN); //sets socket in listening state
 	fcntl(server_socket, F_SETFL, O_NONBLOCK); //sets socket to non-blocking
     listen_socket = server_socket;
-	std::cout << COLOR_GREEN << "IRC Server successfully initialised :) 🎉\n" << COLOR_DEFAULT;
+	std::cout << COLOR_GREEN << "IRC Server successfully initialised :) 🎉\n\n" << COLOR_DEFAULT;
 	return 0;
 }
 
 void	Server::run()
 {
+	fd_set	ready_sockets;
+	FD_ZERO(&current_sockets);
+	FD_SET(this->listen_socket, &current_sockets);
+	while (true)
+	{
+		ready_sockets = current_sockets;
+		try
+		{
+			if(select(FD_SETSIZE, &ready_sockets, NULL, NULL, NULL) >= 0){
+				for (int i = 0; i < FD_SETSIZE; i++){
+					if (FD_ISSET(i, &ready_sockets)){
+						if (i == this->listen_socket){
+							int client_socket = 1; //here we will add_user from client;
+							client_socket = 0;
+						}
+						else{
+							char buff[4096];
+							memset(buff, 0, 4096);
+							// int num = recv(i, buff, 4096, 0); //function receives data from connected socket or bound connectionless socket
+							// controllo su num da fare, se minore di 0 da errore
+							// altrimenti prendi user
+						}
+
+					}
+				}
+			}
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+			return ;
+		}
+		
+	}
 
 	std::cout << COLOR_GREEN << "IRC Server is up and running...\n" << COLOR_DEFAULT;
 }

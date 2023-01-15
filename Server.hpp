@@ -47,6 +47,7 @@ class	Server{
 		std::string				__port;
 		std::string				created_at;
 		int						listen_socket;
+		fd_set					current_sockets;
 };
 
 #endif
