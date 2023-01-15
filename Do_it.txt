@@ -5,10 +5,94 @@ The client does basically everything for you by forwarding some messages
 that do a specific thing: the job is to get the server to do specific things
 based on the cmd they get from the client 
 
-The main classes to create are 
+useful read before starting https://www.ietf.org/rfc/rfc1459.txt
 
-SERVER - duh
-USER - one for every client, saves User ID, Nickname and password directly from client
+/ ___|   ___ | |_ | |_ (_) _ __    __ _ 
+\___ \  / _ \| __|| __|| || '_ \  / _` |
+ ___) ||  __/| |_ | |_ | || | | || (_| |
+|____/  \___| \__| \__||_||_| |_| \__, |
+                                  |___/ 
+
+ _    _      _                                   
+| |_ | |__  (_) _ __    __ _  ___   _   _  _ __  
+| __|| '_ \ | || '_ \  / _` |/ __| | | | || '_ \ 
+| |_ | | | || || | | || (_| |\__ \ | |_| || |_) |
+ \__||_| |_||_||_| |_| \__, ||___/  \__,_|| .__/ 
+                       |___/              |_|    
+
+SERVER 
+    - duh
+CLIENT
+     - each client has a NICKNAME of max 9 chars
+USER 
+    - one for every client, saves User ID , Nickname and password directly from client
     - needs to be able to be set to super User
-    - needs to be able to be silent and limited to some things 
-CHANNEL - creates a new sub-chat in the chat
+    - needs to be able to be silent and limited to some things
+OPERATOR USER 
+    - has @next to nickname. 
+CHANNEL - named group of one or more clinets which all receive message addressed to channel 
+        - names are str with & or #
+        - max name len 200
+        - name cannot have white spaces, ascii 7 or ','
+        - max 10 channels per USER
+        - +i means you can join channel only via invite
+        - has 'operator' which is the user owner of channel 
+        - channel has a mode
+        - has a ban list of users that cannot access
+        - can have a password
+MESSAGES 
+    - if starts with valid CMD, client receives specific response
+    -3 main parts   
+        1. prefix (optional)
+            - prefix is signaled with : before
+            - there must be non whitespace between : and prefix
+            - used by servers to indicate true orifin of the message, if missing,
+                it is assumed the message was originated from the connection
+                from which it was received
+        2. CMD
+        3. command parameter (up to 15)
+    all are separated by one or more white spaces
+    - all messages are terminated with a CR-LF (\r or \n)
+    - message should not exceed 512 chars in length
+
+
+Commands of USR
+    JOIN    creates new channel or becomes part of existing channel
+            - user cannot join if name matches channel bans
+            - can be protected by password
+                JOIN <channel>
+                JOIN <channel>, <password>.
+            - Numeric Replies:
+
+           ERR_NEEDMOREPARAMS              ERR_BANNEDFROMCHAN
+           ERR_INVITEONLYCHAN              ERR_BADCHANNELKEY
+           ERR_CHANNELISFULL               ERR_BADCHANMASK
+           ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
+           RPL_TOPIC
+
+    NICK    changes nickname
+        - checks for same nicknames
+        - if same, blocks
+        - if new, sets and destroys previous nick 
+    QUIT    client session ends
+Commands of Operator User
+    KICK - eliminates a user from a channel
+    MODE - changes the channel mode
+    INVITE - invites user to channel 
+    TOPIC - changes channel topic in mode +t 
+
+creates a new sub-chat in the chat
+
+WHAT TO DO 
+
+1. First of all, activate server and get it to listen 
+2. bind relation with port
+3. get user info from client
+4. verify password
+    - display password ok on client
+5. create user
+    - display user 
+6. set nickname
+    - show set nickname
+7. Confirm registration 
+    - welcome message
