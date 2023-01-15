@@ -23,39 +23,30 @@
 #include <vector>
 #include "colors.h"
 
+# define SERV_NAME std::string("VIRC_SERVER")
+# define UMODES std::string("ov") // available user _modes
+# define CMODES std::string("bkomstnv") // available channel _modes
+
 class	Server{
 
 	public:
 
 		Server(int const & port, std::string const & password);
 		~Server(void);
-		int		init_server();
-		void	run_server();
+		int		init();
+		void	run();
 		void	stop_server();
 
 	private:
-		Server(Server const & other);
 		Server &operator=(Server const & rhs);
 
 		static const int		MAX_CLIENTS = 64;
 		static const ssize_t	BUFFER_SIZE = 1024;
 
-		std::string				serverName;
-		std::string				password;
-		std::string				operatorPassword;
-		std::string				hostname;
-		std::string				version;
-		std::string				user_modes;
-		std::string				channel_modes;
-		std::string				motd;
-		struct sockaddr_in		server_address;
-		struct sockaddr_in		client;
-		struct pollfd			clients_pollfd[MAX_CLIENTS];
-		socklen_t				client_number;
-		int						server_socket;
-		int						clients_size;
-		int						return_accept;
-		int						port;	
+		std::string				__pwd;
+		std::string				__port;
+		std::string				created_at;
+		int						listen_socket;
 };
 
 #endif

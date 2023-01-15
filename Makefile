@@ -12,29 +12,24 @@
 # |___||_| \_\ \____|( ) |____/ |_| \__| \___||_| |_| \___||___/
 #                    |/                                         
 
-NAME = ircserver
 
-SRCS =  *.cpp \
-		# server/*.cpp \
-		# client/*.cpp \
-		# message/*.cpp \
-		# bot/*cpp \
 
-INCLUDES =  *.h \
-			*.hpp \
-			# server/*.hpp \
-			# client/*.hpp \
-			# message/*.hpp \
-			# bot/*hpp \
+NAME = ircserv
+
+SRCS =  main.cpp \
+		Server.cpp \
+
+
+# INCLUDES = *.hpp
 
 CC = c++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-OBJS = $(SRCS:.cpp=.o) 
+OBJS = $(SRCS:.cpp=.o)
 
 $(NAME): $(OBJS)
-	$(CC) $(FLAGS)  $(SRCS) -o $(NAME) -I $(INCLUDES) 
+	$(CC) $(FLAGS) -o $(NAME) $(SRCS) 
 
 all : $(NAME)
 
@@ -48,3 +43,4 @@ fclean : clean
 	rm -rf ${NAME}
 
 re : fclean all
+

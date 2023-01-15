@@ -96,3 +96,15 @@ WHAT TO DO
     - show set nickname
 7. Confirm registration 
     - welcome message
+
+
+
+1. ACTIVATING SERVER AND GETTING IT TO listen
+
+Ok this is where all the socket library comes into play. 
+Our goal in order is to 
+
+    a. parse in the main to filter the right info 
+    b. create a server class that will store some information
+    c. initiate the server
+

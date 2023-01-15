@@ -20,21 +20,36 @@ int main(int argc, char **argv)
     if (argc == 3)
 	{
 		int port = std::atoi(argv[1]);
-		if (port < 0 || port > 65535)
+		try 
 		{
-			std::cerr << COLOR_RED << "Invalid port number, please select number only between 0 and 65535" << std::endl;
+			if (port >= 0 && port <= 65535)
+			{
+				std::cout << COLOR_GREEN << "Port good, setting up server..." << std::endl;
+				std::cout << "- - - - - - - - - - - - - - - - - - - - " << std::endl;
+				// create server
+				Server server(port, argv[2]);
+				//Run server
+				try
+				{
+					if (!(server.init()))
+						server.run();
+				}
+				catch(const std::exception& e)
+				{
+					std::cerr << e.what() << '\n';
+				}
+				signal(SIGINT, &sigint);
+			}
+		
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << COLOR_RED << "Error: " << e.what() << std::endl;
 			return (EXIT_FAILURE);
 		}
-		signal(SIGINT, &sigint);
-		std::cout << COLOR_GREEN << "Setting up server..." << std::endl;
-		// create server
-		Server Server(std::atoi(argv[1]), argv[2]);
-		//initialise server TO DO 
-
-		std::cout << COLOR_GREEN << "IRC Server is up and running...\n" << COLOR_DEFAULT;
 		
 		return (EXIT_SUCCESS);
-		}
+	}
 	std::cerr << COLOR_RED << "Invalid number of arguments: only port number and password pls" << std::endl;
 	return (EXIT_FAILURE);
 }
