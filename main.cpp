@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 				try
 				{
 					if (!(server.init()))
-						server.run();
+						return -1;
 				}
 				catch(const std::exception& e)
 				{

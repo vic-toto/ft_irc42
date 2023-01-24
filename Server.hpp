@@ -22,6 +22,7 @@
 #include <queue>
 #include <vector>
 #include "colors.h"
+#include "User.hpp"
 
 # define SERV_NAME std::string("VIRC_SERVER")
 # define UMODES std::string("ov") // available user _modes
@@ -36,6 +37,7 @@ class	Server{
 		int		init();
 		void	run();
 		void	stop_server();
+		int		getUser(int client_socket, User& user);
 
 	private:
 		Server &operator=(Server const & rhs);
@@ -48,6 +50,7 @@ class	Server{
 		std::string				created_at;
 		int						listen_socket;
 		fd_set					current_sockets;
+		std::vector<User>		clients_;
 };
 
 #endif
