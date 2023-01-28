@@ -108,3 +108,19 @@ Our goal in order is to
     b. create a server class that will store some information
     c. initiate the server
 
+SOME INFO ON THE CODE 
+
+int Server::init(int port)
+
+- int server_socket; declares a variable named server_socket of type int, which will be used to store the server socket descriptor.
+- int yes = 1; declares a variable named yes of type int and initializes it with the value 1. This variable will be used later when setting the socket option SO_REUSEADDR.
+- sockaddr_in sock; declares a variable named sock of type sockaddr_in. This struct is used to store the address information (IP address and port number) of the server socket.
+- sock.sin_family = AF_INET; sets the address family of the server socket to AF_INET, which is used for IPv4 addresses.
+- sock.sin_port = htons(port); sets the port number of the server socket to the value passed in as the port argument, and converts it to the correct byte order using the htons() function.
+- int addr = inet_pton(AF_INET, "127.0.0.1", &sock.sin_addr); sets the IP address of the server socket to the value passed in as the "127.0.0.1", and converts it to the correct format using the inet_pton() function.
+- if (addr <= 0) { checks the return value of the inet_pton() function. If the return value is less than or equal to 0, it means that the IP address passed in is not valid.
+- std::cerr << "Invalid IP address" << std::endl; Prints an error message to the standard error output if the IP address is invalid.
+- server_socket = socket(AF_INET, SOCK_STREAM, 0); creates a new socket and assigns the descriptor to the server_socket variable. The socket() function takes three arguments: the address family (AF_INET), the type of socket (SOCK_STREAM for TCP), and the protocol (0 for the default protocol).
+- if (server_socket < 0) { checks if the socket was created successfully. If the return value is less than 0, it means that an error occurred.
+- setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)); sets the socket option SO_REUSEADDR on the server socket using the setsockopt() function. This allows the server to reuse the same IP address and port number after the socket is closed.
+- if (bind(server_socket, (sockaddr*)&sock, sizeof(sock)) < 0) { binds the server socket to the IP address and port number specified in the sock struct using the bind() function. If the return value is less than 0, it means that an error occurred.

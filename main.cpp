@@ -31,8 +31,7 @@ int main(int argc, char **argv)
 				//Run server
 				try
 				{
-					if (!(server.init()))
-						return -1;
+					server.go(port);
 				}
 				catch(const std::exception& e)
 				{

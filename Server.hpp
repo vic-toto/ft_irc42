@@ -34,10 +34,14 @@ class	Server{
 
 		Server(int const & port, std::string const & password);
 		~Server(void);
-		int		init();
-		void	run();
-		void	stop_server();
-		int		getUser(int client_socket, User& user);
+
+		int			go(int port);
+		void		stop_server();
+		int			getUser(int client_socket, User& user);
+		std::string	getPort() {return (this->__port);};
+		std::string getPassword() { return (this->__pwd);};
+		void 		handleClient(int client_socket);
+		void		process_command(std::string data, int client_socket);
 
 	private:
 		Server &operator=(Server const & rhs);
@@ -52,5 +56,7 @@ class	Server{
 		fd_set					current_sockets;
 		std::vector<User>		clients_;
 };
+
+void sigint(int sign);
 
 #endif
