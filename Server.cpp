@@ -50,6 +50,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
 {
     if (!(data.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
         if (!(verifyPassword(data))) {
+			// HERE!!!!! AGGIUNGERE UN TIMER CHE DA TEMPO AI MESSAGGI DI ESSERE ESPOSTI SUL SERVER E SUL CLIENT
             std::cout << COLOR_RED << "Wrong password " << COLOR_DEFAULT << std::endl;
             send(client_fd, PWDREJECT, 10, 0);
             // close the connection or take additional measures for rejected clients
