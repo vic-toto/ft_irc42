@@ -4,8 +4,11 @@
 
 class User {
     public:
-        User() {};
-        User(std::string const username, std::string const nickname) : username_(username), nickname_(nickname) {verified = -1;}
+        User() {}
+        User(int port) {
+            this->_port = port;
+            this->verified = -1;
+        }
 
         std::string getUsername() const { return username_; }
         std::string getNickname() const { return nickname_; }
@@ -33,12 +36,14 @@ class User {
 
         void setNickname(std::string nickname) { nickname_ = nickname; }
         void setPassword(std::string password) { password_ = password; }
+        void setPort(int port)                  {_port = port;}
 
         void setVerification(int value) {verified = value;}
         int  getVerification() {return (verified);}
 
     private:
-        int verified; 
+        int verified;
+        int _port;
         std::string username_;
         std::string nickname_;
         std::string password_;

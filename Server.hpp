@@ -21,7 +21,6 @@
 #include <map>
 #include <queue>
 #include <vector>
-//#include "colors.h"
 #include "User.hpp"
 
 #define COLOR_GREEN "\x1b[32m"
@@ -35,23 +34,12 @@
 # define CMODES std::string("bkomstnv") // available channel _modes
 
 class	Server{
-
-	public:
-
-		Server(int const & port, std::string const & password);
-		~Server(void);
-
-		int			go(int port);
-		void		stop_server();
-		int			getUser(int client_socket, User& user);
-		std::string	getPort() {return (this->__port);};
-		std::string getPassword() { return (this->__pwd);};
-		void 		handleClient(int client_socket);
-		void		process_command(std::string data, int client_socket);
-		bool 		verifyPassword(std::string password);
-
 	private:
-		Server &operator=(Server const & rhs);
+		Server &operator=(Server const & rhs){
+			this->~Server();
+			new (this) Server(rhs);
+			return (*this);
+		};
 
 		static const int		MAX_CLIENTS = 64;
 		static const ssize_t	BUFFER_SIZE = 1024;
@@ -60,8 +48,62 @@ class	Server{
 		std::string				__port;
 		std::string				created_at;
 		int						listen_socket;
+		int						server_socket;
 		fd_set					current_sockets;
-		std::vector<User>		clients_;
+		std::vector<int>		_client_fds;
+		std::vector<User>		_users;
+
+
+	public:
+
+		//Server constructors
+		Server() {}
+		Server(int const & port, std::string const & password){
+			this->__port = port;
+			this->__pwd = password;
+			std::time_t result = std::time(nullptr);
+		    this->created_at = std::asctime(std::localtime(&result));
+		    std::cout << COLOR_YELLOW << "👉🏼 Initialising server - - - created @ " << this->created_at << std::endl << COLOR_DEFAULT;
+		};
+		~Server(){
+			std::cout << COLOR_CYAN<< "IRC Server stopped and shut down...👋🏽\n" << COLOR_DEFAULT;
+			};
+
+		//Server main functions
+		int			start(int port);
+		void		go();
+		void		stop_server();
+
+
+		//Getters
+		int			getUser(int client_socket, User& user);
+		std::string	getPort() {return (this->__port);};
+		std::string getPassword() { return (this->__pwd);};
+		
+		//Setters
+		void	setServerSocket(int s){
+			this->server_socket = s;
+		}
+
+		//Security
+		bool 		verifyPassword(std::string password);
+
+		//Client related
+		void		handleClientMessage(std::string data, int client_fd);
+		//void		process_command(std::string data, int client_socket);
+
+		void addUser(const User& user) {
+        _users.push_back(user);
+    	}
+
+		void addClientFd(int fd) {
+	    _client_fds.push_back(fd);
+		}
+
+		bool hasClientFd(int fd) {
+		    return std::find(_client_fds.begin(), _client_fds.end(), fd) != _client_fds.end();
+		}
+
 };
 
 void sigint(int sign);

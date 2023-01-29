@@ -25,13 +25,14 @@ int main(int argc, char **argv)
 			if (port >= 0 && port <= 65535)
 			{
 				std::cout << COLOR_GREEN << "Port good, setting up server..." << std::endl;
-				std::cout << "- - - - - - - - - - - - - - - - - - - - " << std::endl;
+				std::cout << COLOR_YELLOW << "- - - - - - - - - - - - - - - - - - - - " << COLOR_DEFAULT << std::endl;
 				// create server
 				Server server(port, argv[2]);
 				//Run server
 				try
 				{
-					server.go(port);
+					server.start(port);
+					server.go();
 				}
 				catch(const std::exception& e)
 				{
@@ -43,12 +44,12 @@ int main(int argc, char **argv)
 		}
 		catch(const std::exception& e)
 		{
-			std::cerr << COLOR_RED << "Error: " << e.what() << std::endl;
+			std::cerr << COLOR_RED << "Error: " << e.what() << COLOR_DEFAULT << std::endl;
 			return (EXIT_FAILURE);
 		}
 		
 		return (EXIT_SUCCESS);
 	}
-	std::cerr << COLOR_RED << "Invalid number of arguments: only port number and password pls" << std::endl;
+	std::cerr << COLOR_RED << "Invalid number of arguments: only port number and password pls" << COLOR_DEFAULT << std::endl;
 	return (EXIT_FAILURE);
 }
