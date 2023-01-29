@@ -21,7 +21,7 @@
 #include <map>
 #include <queue>
 #include <vector>
-#include "colors.h"
+//#include "colors.h"
 #include "User.hpp"
 
 # define SERV_NAME std::string("VIRC_SERVER")
@@ -42,6 +42,7 @@ class	Server{
 		std::string getPassword() { return (this->__pwd);};
 		void 		handleClient(int client_socket);
 		void		process_command(std::string data, int client_socket);
+		bool 		verifyPassword(std::string password);
 
 	private:
 		Server &operator=(Server const & rhs);
@@ -58,5 +59,6 @@ class	Server{
 };
 
 void sigint(int sign);
+std::string trimWhitespace(std::string s);
 
 #endif
