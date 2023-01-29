@@ -110,7 +110,7 @@ Our goal in order is to
 
 SOME INFO ON THE CODE 
 
-int Server::init(int port)
+int Server::start(int port)
 
 - int server_socket; declares a variable named server_socket of type int, which will be used to store the server socket descriptor.
 - int yes = 1; declares a variable named yes of type int and initializes it with the value 1. This variable will be used later when setting the socket option SO_REUSEADDR.
@@ -124,3 +124,18 @@ int Server::init(int port)
 - if (server_socket < 0) { checks if the socket was created successfully. If the return value is less than 0, it means that an error occurred.
 - setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)); sets the socket option SO_REUSEADDR on the server socket using the setsockopt() function. This allows the server to reuse the same IP address and port number after the socket is closed.
 - if (bind(server_socket, (sockaddr*)&sock, sizeof(sock)) < 0) { binds the server socket to the IP address and port number specified in the sock struct using the bind() function. If the return value is less than 0, it means that an error occurred.
+
+
+Server::go() 
+
+TLDR    This function is responsible for accepting and securing connections with multiple clients
+        and each message respectively.
+
+
+
+- std::vector<pollfd> client_fds is a vector of pollfd structs, where each struct represents a file descriptor that is being monitored for events. The vector is used to store all the file descriptors of connected clients.
+- struct pollfd server_pfd is a struct that represents the file descriptor of the server socket. It includes the file descriptor, the events to be monitored, and the events that have occurred. In this case, the server file descriptor is being monitored for incoming connections (POLLIN event).
+- client_fds.push_back(server_pfd); adds the server file descriptor to the vector of client file descriptors. This is done so that the server file descriptor can be monitored alongside the client file descriptors using the poll() function.
+- int ret = poll(client_fds.data(), client_fds.size(), -1); is a call to the poll() function, which monitors a set of file descriptors for events. The first argument is a pointer to the beginning of the array of file descriptors (in this case, the vector of client file descriptors), the second argument is the number of file descriptors in the array, and the third argument is the timeout in milliseconds (-1 means to wait indefinitely). The function returns the number of file descriptors that have events pending, or -1 if an error occurred.
+- The following block of code is checking if the server file descriptor (the first file descriptor in the vector) has an incoming connection event (POLLIN) pending. If it does, it accepts the incoming connection, creates a new pollfd struct for the new client, adds the new client to the vector of client file descriptors, prints a message with the client's IP address and port, and confirms the secure connection.
+- The final section of the code is checking all the client file descriptors in the vector for events. If an event is pending for a client file descriptor, it handles the event accordingly. This allows multiple messages to be handled simultaneously from multiple clients.

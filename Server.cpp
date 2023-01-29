@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "tools.hpp"
+#include "clientMessages.hpp"
 // STEP 1
 
 int Server::start(int port)
@@ -49,20 +50,15 @@ void	Server::handleClientMessage(std::string data, int client_fd)
 {
     if (!(data.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
         if (!(verifyPassword(data))) {
-            std::cout << COLOR_RED << "wrong password" << COLOR_DEFAULT << std::endl;
-            send(client_fd, "Password rejected\n", 17, 0);
+            std::cout << COLOR_RED << "Wrong password " << COLOR_DEFAULT << std::endl;
+            send(client_fd, PWDREJECT, 10, 0);
             // close the connection or take additional measures for rejected clients
              }
+		else {
             std::cout << "Client password accepted" << std::endl;
-            std::string message = COLOR_GREEN "Password accepted" COLOR_DEFAULT "\n";
-            send(client_fd, message.c_str(), message.length(), 0);
-            //send(client_socket, "Create User with USER cmd\n", 26, 0);
-            // additional code to handle authenticated client goes here
+            send(client_fd, PWDACCEPT, 8, 0);
+		}
     }
-   // else if (!(data.compare(0, 4, "USER")))
-   //     setUsername(client_socket, data);
-        
-
 	     else {
         std::cout << "Invalid command" << std::endl;
     }
