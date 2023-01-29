@@ -24,6 +24,12 @@
 //#include "colors.h"
 #include "User.hpp"
 
+#define COLOR_GREEN "\x1b[32m"
+#define COLOR_DEFAULT "\x1b[0m"
+#define COLOR_RED "\x1b[31m" 
+#define COLOR_YELLOW "\x1b[33m"
+#define COLOR_CYAN "\x1b[36m"
+
 # define SERV_NAME std::string("VIRC_SERVER")
 # define UMODES std::string("ov") // available user _modes
 # define CMODES std::string("bkomstnv") // available channel _modes
@@ -59,6 +65,5 @@ class	Server{
 };
 
 void sigint(int sign);
-std::string trimWhitespace(std::string s);
 
 #endif

@@ -1,12 +1,5 @@
 #include "Server.hpp"
-#include "User.hpp"
 #include "tools.hpp"
-#define COLOR_GREEN "\x1b[32m"
-#define COLOR_DEFAULT "\x1b[0m"
-#define COLOR_RED "\x1b[31m" 
-#define COLOR_YELLOW "\x1b[33m"
-#define COLOR_CYAN "\x1b[36m"
-
 // STEP 1
 
 Server::Server(int const & port, std::string const & password)
@@ -94,6 +87,7 @@ bool Server::verifyPassword(std::string password)
 
 void Server::process_command(std::string data, int client_socket) 
 {
+    User user;
     if (!(data.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
         if (!(verifyPassword(data))) {
             std::cout << COLOR_RED << "wrong password" << std::endl;
@@ -103,9 +97,15 @@ void Server::process_command(std::string data, int client_socket)
             std::cout << "Client password accepted" << std::endl;
             std::string message = COLOR_GREEN "Password accepted" COLOR_DEFAULT "\n";
             send(client_socket, message.c_str(), message.length(), 0);
+            //User user;
+            user.setVerification(0);
             //send(client_socket, "Create User with USER cmd\n", 26, 0);
             // additional code to handle authenticated client goes here
-        }
+    }
+    else if (!(data.compare(0, 4, "USER")))
+        user.setUsername(client_socket, data);
+        
+
 	     else {
         std::cout << "Invalid command" << std::endl;
     }
@@ -131,7 +131,6 @@ void Server::handleClient(int client_socket) {
                 std::cerr << "Error in recv: " << strerror(errno) << std::endl;
                 continue;
             }
-
             std::string data(buffer, received);
             process_command(data, client_socket);
         }
