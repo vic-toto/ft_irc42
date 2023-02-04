@@ -85,16 +85,22 @@ creates a new sub-chat in the chat
 
 WHAT TO DO 
 
-1. First of all, activate server and get it to listen 
-2. bind relation with port
-3. get user info from client
-4. verify password
+1. First of all, activate server and get it to listen DONE
+2. bind relation with port DONE
+3. get info from client DONE
+    - Store client port
+    - add channel vector to client class
+4. Set up tools
+    - add instructions to send to client
+    - incoming str from client cleaner
+    - name on terminal
+5. verify password 
     - display password ok on client
-5. create user
+6. create user
     - display user 
-6. set nickname
+7. set nickname
     - show set nickname
-7. Confirm registration 
+8. Confirm registration 
     - welcome message
 
 
