@@ -28,5 +28,11 @@ std::string trimWhitespace(std::string s) {
     return s;
 }
 
+std::string removeLeadingSpace(std::string str)
+{
+    std::size_t firstNonSpace = str.find_first_not_of(' ');
+    str.erase(0, firstNonSpace);
+    return str;
+}
 
 #endif

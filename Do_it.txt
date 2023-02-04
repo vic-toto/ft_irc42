@@ -92,7 +92,7 @@ WHAT TO DO
     - add channel vector to client class
 4. Set up tools
     - add instructions to send to client
-    - incoming str from client cleaner
+    - incoming str from client cleaner DONE
     - name on terminal
 5. verify password 
     - display password ok on client

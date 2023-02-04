@@ -48,6 +48,14 @@ int Server::start(int port)
 
 void	Server::handleClientMessage(std::string data, int client_fd) 
 {
+    if(data.empty())
+        return ;
+    std::string cmd = data.substr(0,4);
+    std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+    printf("\nCMD %s\n", cmd.c_str());
+    printf("\n message %s\n", message.c_str());
+
+    //CMDS
     if (!(data.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
         if (!(verifyPassword(data))) {
 			// HERE!!!!! AGGIUNGERE UN TIMER CHE DA TEMPO AI MESSAGGI DI ESSERE ESPOSTI SUL SERVER E SUL CLIENT
@@ -104,6 +112,7 @@ void	Server::go()
 			fds.push_back(newClient);
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
+            send(newClient.fd, WELCOME, 84, 0);
            // User User(ntohs(client_sock.sin_port));
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
@@ -121,6 +130,7 @@ void	Server::go()
                     continue;
                 }
                 std::string message(buffer, ret);
+                removeLeadingSpace(message);
 				printf("%s client message of %d\n\n", message.c_str(), fds[i].fd);
                 this->handleClientMessage(message, fds[i].fd);
             }
