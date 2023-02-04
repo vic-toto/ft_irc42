@@ -91,7 +91,7 @@ class	Server{
 		//Client related
 		void		handleClientMessage(std::string data, int client_fd);
 		//void		process_command(std::string data, int client_socket);
-
+		User		getUser(int fd) {return _users[fd];}
 		void addUser(const User& user) {
         _users.push_back(user);
     	}

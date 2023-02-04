@@ -50,25 +50,40 @@ void	Server::handleClientMessage(std::string data, int client_fd)
 {
     if(data.empty())
         return ;
+    User user = this->getUser(client_fd);
     std::string cmd = data.substr(0,4);
     std::string message = removeLeadingSpace(data.substr(5, (data.size())));
     printf("\nCMD %s\n", cmd.c_str());
     printf("\n message %s\n", message.c_str());
 
     //CMDS
-    if (!(data.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
-        if (!(verifyPassword(data))) {
-			// HERE!!!!! AGGIUNGERE UN TIMER CHE DA TEMPO AI MESSAGGI DI ESSERE ESPOSTI SUL SERVER E SUL CLIENT
-            std::cout << COLOR_RED << "Wrong password " << COLOR_DEFAULT << std::endl;
-            send(client_fd, PWDREJECT, 10, 0);
+    if (!(cmd.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
+        if ((user.getVerification() != 1) || !(verifyPassword(message))) {
+            std::cout << COLOR_RED << "Wrong password for client fd " << client_fd << COLOR_DEFAULT << std::endl;
+            send(client_fd, PWDREJECT, 26, 0);
             // close the connection or take additional measures for rejected clients
-             }
-		else {
-            std::cout << "Client password accepted" << std::endl;
-            send(client_fd, PWDACCEPT, 8, 0);
-		}
-    }
-	     else {
+             } else {
+            user.setVerification(1);
+            std::cout << "Client password accepted for client fd " << client_fd << std::endl;
+            send(client_fd, PWDACCEPT, 23, 0);
+            }
+    }   
+    else if (user.getVerification() == 1){  
+        if (!(cmd.compare(0, 4, "USER"))) {
+                user.setUsername(message);
+                std::cout << "Client %d username set to %s\n " << client_fd << user.getUsername().c_str() << std::endl;
+                send(client_fd, "Username set to ", 17, 0);
+                send(client_fd, message.data(), message.size(), 0);
+                send(client_fd, "\n|", 1, 0);
+        } else if (!(cmd.compare(0, 4, "NICK    "))) {
+                user.setNickname(message);
+                std::cout << "Client %d nickname set to %s\n " << client_fd << user.getNickname().c_str() << std::endl;
+                send(client_fd, "Nickname set to ", 17, 0);
+                send(client_fd, message.data(), message.size(), 0);
+                send(client_fd, "\n|", 1, 0);
+        }
+        
+	    else {
         std::cout << "Invalid command" << std::endl;
     }
 }
@@ -113,7 +128,8 @@ void	Server::go()
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
             send(newClient.fd, WELCOME, 84, 0);
-           // User User(ntohs(client_sock.sin_port));
+            User User(ntohs(newClient.fd));
+            this->addUser(User);
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
         {
