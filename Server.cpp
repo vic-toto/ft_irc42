@@ -114,8 +114,7 @@ void	Server::go()
         if (fds[0].revents & POLLIN)
         {
             sockaddr_in client_sock;
-            socklen_t client_sock_len = sizeof(client_sock);
-            //accept incoming connections
+            socklen_t client_sock_len = sizeof(client_sock); //accept incoming connections
            	int  client_socket = accept(this->server_socket, (sockaddr*)&client_sock, &client_sock_len);
             printf("client socket %d\n\n", client_socket);
             if (client_socket < 0)
@@ -127,7 +126,6 @@ void	Server::go()
 			newClient.fd = client_socket;
 			newClient.events = POLLIN;
 			newClient.revents = 0;
-            //this->addClientFd(client_socket);
 			fds.push_back(newClient);
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
@@ -137,8 +135,7 @@ void	Server::go()
                 send(user.getFd(), WELCOME, 84, 0);
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
-        {
-            
+        { 
             if (fds[i].revents & POLLIN)
             {
                 char buffer[1024];
@@ -160,15 +157,6 @@ void	Server::go()
 	}
 }
 
-bool Server::verifyPassword(std::string password)
-{
-    //password.erase(0,4); 
-    //password = trimWhitespace(password);
-    std::cout << "verifying password " << password << std::endl;
-    std::cout << "verifying server password " << this->getPassword() << std::endl;
-    return (password.compare(0, this->getPassword().size(), this->getPassword()));
-}
-
 void    clientConsole(User user)
 {
     if (!(user.getVerification())){
@@ -180,9 +168,9 @@ void    clientConsole(User user)
             return ; }
         if (!(user.getNickVerification())) {
             send(user.getFd(), "\nPlease set nickname with NICK your_nickname\n", 46, 0);
-            return ; }
+            return ; 
+        }
     }
     send(user.getFd(), user.getNickname().data(), user.getNickname().size() - 1, 0);
     send(user.getFd(), " - ", 3, 0);
-
 }

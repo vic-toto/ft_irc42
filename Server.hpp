@@ -84,7 +84,7 @@ class	Server{
 		void	setServerSocket(int s){this->server_socket = s;}
 
 		//Security
-		bool 		verifyPassword(std::string password);
+		bool 		verifyPassword(std::string password) {return (password.compare(0, this->getPassword().size(), this->getPassword())); };
 
 		//Client related
 		int			getNumberUsers() {return (_users.size()); }
