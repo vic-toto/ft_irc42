@@ -32,7 +32,7 @@ class User {
         void setVerification(int value) {verified = value;}
         int  getVerification() {return (verified);}
 
-        //cmds 
+        //cmds
 
         User    USER(std::string username)
         {
@@ -41,6 +41,17 @@ class User {
             std::cout << "Client " << this->getFd() << "username set to " << this->getUsername().c_str() << std::endl;
             send(this->getFd(), "Username set to ", 17, 0);
             send(this->getFd(), this->getUsername().data(), username.size(), 0);
+            send(this->getFd(), "\n", 1, 0);
+            return (*this);
+        }
+
+        User    NICK(std::string nickname)
+        {
+            this->setNickname(nickname);
+            this->setNickVerification(1);
+            std::cout << "Client " << this->getFd() << "username set to " << this->getNickname().c_str() << std::endl;
+            send(this->getFd(), "Nickname set to ", 17, 0);
+            send(this->getFd(), this->getNickname().data(), nickname.size(), 0);
             send(this->getFd(), "\n", 1, 0);
             return (*this);
         }

@@ -69,30 +69,21 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 } 
         } else if (user.getVerification()) {  
             if (!(cmd.compare(0, 4, "USER"))) {
-                printf("ci sono\n");
                 user.USER(message);
-                //user.setUsername(message);
-                //user.setUserVerification(1);
                 updateUser(user);
-                //std::cout << "Client " << client_fd << "username set to " << user.getUsername().c_str() << std::endl;
-                //send(client_fd, "Username set to ", 17, 0);
-                //send(client_fd, message.data(), message.size(), 0);
-                //send(client_fd, "\n", 1, 0);
-                // clientConsole(user);
             } else if (!(cmd.compare(0, 4, "NICK"))) {
-                user.setNickname(message);
-                user.setNickVerification(1);
+                user.NICK(message);
                 updateUser(user);
-                std::cout << "Client nickname set \n " << client_fd << user.getNickname().c_str() << std::endl;
-                send(client_fd, "Nickname set to ", 17, 0);
-                send(client_fd, message.data(), message.size(), 0);
-                send(client_fd, "\n", 1, 0);
-                // clientConsole(user);
-                }
+            }
              // else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
             // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {
+         else {
+            std::cout << "Invalid command" << std::endl;
+            send(client_fd, "Invalid command\n", 17, 0);
+            // clientConsole(user);
+            }
         } else {
             std::cout << "Invalid command" << std::endl;
             send(client_fd, "Invalid command\n", 17, 0);
@@ -182,11 +173,12 @@ bool Server::verifyPassword(std::string password)
 
 void    clientConsole(User user)
 {
-    if (!(user.getVerification()))
+    if (!(user.getVerification())){
         send(user.getFd(), WELCOME, 84, 0);
-    else {
+        return ;
+    } else {
         if (!(user.getUserVerification())){
-            send(user.getFd(), "Please set username with USER your_username\n", 46, 0);
+            send(user.getFd(), "\nPlease set username with USER your_username\n", 46, 0);
             return ; }
         if (!(user.getNickVerification())) {
             send(user.getFd(), "\nPlease set nickname with NICK your_nickname\n", 46, 0);
