@@ -105,6 +105,12 @@ WHAT TO DO
     - show set nickname
 8. Confirm registration 
     - welcome message
+9. Allow PRVMSG between clients
+10. Create channels
+    - store in server vector 
+    - store in user vector
+    - has a name and can have a password
+    - user that creates channel is channel operator
 
 
 

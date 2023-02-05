@@ -85,7 +85,10 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 send(client_fd, "Nickname set to ", 17, 0);
                 send(client_fd, message.data(), message.size(), 0);
                 send(client_fd, "\n", 1, 0);
-        }
+        } // else if (!(cmd.compare(0, 4, "JOIN"))) {
+        // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
+        // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
+        // }  else if (!(cmd.compare(0, 4, "KICK"))) {
     } else {
         std::cout << "Invalid command" << std::endl;
     }

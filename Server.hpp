@@ -65,9 +65,7 @@ class	Server{
 		    this->created_at = std::asctime(std::localtime(&result));
 		    std::cout << COLOR_YELLOW << "👉🏼 Initialising server - - - created @ " << this->created_at << std::endl << COLOR_DEFAULT;
 		};
-		~Server(){
-			std::cout << COLOR_CYAN<< "IRC Server stopped and shut down...👋🏽\n" << COLOR_DEFAULT;
-			};
+		~Server() { std::cout << COLOR_CYAN<< "IRC Server stopped and shut down...👋🏽\n" << COLOR_DEFAULT; }
 
 		//Server main functions
 		int			start(int port);
@@ -81,9 +79,7 @@ class	Server{
 		std::string getPassword() { return (this->__pwd);};
 		
 		//Setters
-		void	setServerSocket(int s){
-			this->server_socket = s;
-		}
+		void	setServerSocket(int s){this->server_socket = s;}
 
 		//Security
 		bool 		verifyPassword(std::string password);
