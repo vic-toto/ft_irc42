@@ -46,4 +46,13 @@ int substr_to_first_space_or_end(const std::string &str) {
   return pos != std::string::npos ? pos : 0;
 }
 
+std::string cleanString(std::string str) {
+  std::size_t start = str.find_first_not_of(" \t\r\n");
+  std::size_t end = str.find_last_not_of(" \t\r\n");
+  if (start == std::string::npos || end == std::string::npos) {
+    return "";
+  }
+  return str.substr(start, end - start + 1);
+}
+
 #endif

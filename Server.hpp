@@ -89,9 +89,11 @@ class	Server{
 		//Client related
 		bool		isUser(std::string nick)
 		{
-			for (int i = 0; i <= getNumberUsers(); i++)
+			for (int i = 0; i < getNumberUsers(); i++)
 			{
-				if (!(_users[i].getNickname().compare(0, _users[i].getNickname().size(), nick)))
+				std::cout << "checking user nick '" << _users[i].getNickname() << "'" <<std::endl;
+				std::cout << "checking real nick '" << nick << "'" <<std::endl;
+				if (!(_users[i].getNickname().compare(nick)))
 					return true;
 			}
 			return false;
@@ -108,8 +110,9 @@ class	Server{
 		}
 
 		User		getUser(std::string nick) {
-			for (int i = 0; i < getNumberUsers(); i++) {
-            if (_users[i].getNickname().compare(0, _users[i].getNickname().size(), nick)) {
+			for (int i = 0; i <= getNumberUsers(); i++) {
+			std::cout << "getting user by nick '" << _users[i].getNickname() << "'" << std::endl;
+            if (!(_users[i].getNickname().compare(nick))) {
                 return _users[i]; }
 			}
 			return (User());

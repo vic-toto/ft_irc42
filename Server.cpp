@@ -54,29 +54,34 @@ void	Server::handleClientMessage(std::string data, int client_fd)
         {
             std::string receiverNick = removeLeadingSpace(data.substr(7, (data.size())));
             int endNick = substr_to_first_space_or_end(receiverNick);
+            std::cout << "first " << receiverNick << " " << endNick << std::endl;
             if (endNick == 0){
                 send(user.getFd(), "Error, missing message \n ", 26, 0);
             }
             else
             {
+                std::cout << receiverNick << " " << endNick << std::endl;
                 receiverNick = receiverNick.substr(0, endNick);
-                std::cout << receiverNick << std::endl;
+                std::cout << receiverNick << " " << endNick << std::endl;
                 if (isUser(receiverNick)){
+                std::cout << "getting user by nickname in main funcion '" << receiverNick << "'" << std::endl;
                 User receiver = getUser(receiverNick);
                 std::string message = removeLeadingSpace(data.substr(6 + receiver.getNickname().size(), data.size()));
                 send(receiver.getFd(), "New Private Message From ", 26, 0);
                 send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
                 send(receiver.getFd(), "\n", 1, 0);
-                send(receiver.getFd(), data.data(), data.size(), 0);
+                send(receiver.getFd(), message.data(), message.size(), 0);
+                send(receiver.getFd(), "\n", 1, 0);
                 } else {
                     send(user.getFd(), "Error, no user with nick ", 26, 0);
                     send(user.getFd(), receiverNick.data(), receiverNick.size(), 0);
                 }
             }
             
-        }
+        } else {
         std::string cmd = data.substr(0,4);
         std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+        message = cleanString(message);
         std::cout << user.getVerification() << std::endl; 
         std::cout << cmd << std::endl;
         std::cout << message << std::endl;
@@ -111,7 +116,8 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             std::cout << "Invalid command" << std::endl;
             send(client_fd, "Invalid command\n", 17, 0);
             // clientConsole(user);
-        }       
+        } 
+        }      
     }
     clientConsole(user);
 }
@@ -162,6 +168,7 @@ void	Server::go()
         { 
             if (fds[i].revents & POLLIN)
             {
+                std::cout << "no of clients " << getNumberUsers() << std::endl;
                 char buffer[1024];
                 int ret = recv(fds[i].fd, buffer, sizeof(buffer), 0);
                 if (ret <= 0)
@@ -195,6 +202,6 @@ void    clientConsole(User user)
             return ; 
         }
     }
-    send(user.getFd(), user.getNickname().data(), user.getNickname().size() - 1, 0);
+    send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 3, 0);
 }
