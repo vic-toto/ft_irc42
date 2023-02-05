@@ -17,19 +17,33 @@
 class Channel
 {
 private:
-    int _invitation;
-    std::string _password;
-    User    channelOperator;
+    int                 _invitation;
+    std::string         _password;
+    User                channelOperator;
     std::vector<User>   blackList;
+    std::vector<User>   usersInChannel;
+    std::string         name;
 
     /* data */
 public:
+    Channel() {}
     Channel(std::string name, std::string password, User channelOperator);
     Channel(std::string name, std::string password, User channelOperator, int invite);
     ~Channel();
-    std::string name;
 
+    void    setName(std::string name) {this->name = name;}
+    void    addUser(User user) {usersInChannel.push_back(user);}
 
+    std::string getName() {return this->name;}
+
+    bool	blackList(std::string nick){
+			for (int i = 0; i < blackList.size(); i++) {
+      		if (blackList[i].getNickname() == nick) {
+      		  return true;
+      		}
+			}
+			return false;
+		}
 };
 
 

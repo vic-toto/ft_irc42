@@ -64,10 +64,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 receiverNick = receiverNick.substr(0, endNick);
                 std::cout << receiverNick << " " << endNick << std::endl;
                 if (isUser(receiverNick)){
-                std::cout << "getting user by nickname in main funcion '" << receiverNick << "'" << std::endl;
                 User receiver = getUser(receiverNick);
-                std::string message = removeLeadingSpace(data.substr(6 + receiver.getNickname().size(), data.size()));
-                send(receiver.getFd(), "New Private Message From ", 26, 0);
+                std::string message = removeLeadingSpace(data.substr(6, data.size()));
+                message.substr(0, receiverNick.size());
+                message = cleanString(message);
+                send(receiver.getFd(), "\nNew Private Message From ", 27, 0);
                 send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
                 send(receiver.getFd(), "\n", 1, 0);
                 send(receiver.getFd(), message.data(), message.size(), 0);
@@ -82,9 +83,6 @@ void	Server::handleClientMessage(std::string data, int client_fd)
         std::string cmd = data.substr(0,4);
         std::string message = removeLeadingSpace(data.substr(5, (data.size())));
         message = cleanString(message);
-        std::cout << user.getVerification() << std::endl; 
-        std::cout << cmd << std::endl;
-        std::cout << message << std::endl;
         //CMDS
         if (!(cmd.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
             if (user.getVerification() == 0){
@@ -103,7 +101,31 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 user.NICK(message);
                 updateUser(user);
             }
-             // else if (!(cmd.compare(0, 4, "JOIN"))) {
+         //   else if (!(cmd.compare(0, 4, "JOIN")) && !(user.getInChannel())) {
+         //       if (message.empty() || message[0] != '#' || message.size() > 200)
+         //           send(user.getFd(), "Invalid channel name\n", 22, 0);
+         //       if (channelExists(message)){
+         //           Channel channel = getChannel(message);
+         //           if (!(channel.blackList(user.getNickname())))
+         //           {
+         //               channel.addUser(user);
+         //               user.setInChannel(1);
+         //               user.setWhatChannel(channel.getName());
+         //               updateUser(user);
+         //           }
+         //           // saves user in channel list
+         //           // updates the inChannel status
+         //           //saves in what channel
+         //       } else {
+         //           Channel channel;
+         //           channel.setName(message);
+         //           channel.addUser(user);
+         //           user.setInChannel(1);
+         //           user.setWhatChannel(message);
+         //           updateUser(user);
+         //           addChannel(channel);
+         //       }
+         //   }
             // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
             // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {

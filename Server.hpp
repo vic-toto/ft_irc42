@@ -54,6 +54,7 @@ class	Server{
 		fd_set					current_sockets;
 		std::vector<int>		_client_fds;
 		std::vector<User>		_users;
+		std::vector<Channel>	_channels;
 
 
 	public:
@@ -126,6 +127,14 @@ class	Server{
 			}
 		}
 
+		void	updateChannel(const Channel& channel){
+			for (int i = 0; i < _channels.size(); i++){
+				if (_channels[i].getName() == channel.getName()) {
+					_channels[i] = channel;
+				}
+			}
+		}
+
 		void addUser(const User& user) {
         _users.push_back(user);
     	}
@@ -137,6 +146,33 @@ class	Server{
 		bool hasClientFd(int fd) {
 		    return std::find(_client_fds.begin(), _client_fds.end(), fd) != _client_fds.end();
 		}
+
+		// channels
+		bool	channelExists(std::string channelName)
+		{
+			for (int i = 0; i < _channels.size(); i++) {
+      		if (_channels[i].getName() == channelName) {
+      		  return true;
+      		}
+			}
+			return false;
+		}
+
+		void addChannel(const Channel& channel) {
+        _channels.push_back(channel);
+    	}
+
+		int			getNumberChannels() {return (_channels.size()); }
+
+		Channel		getChannel(std::string name) {
+			for (int i = 0; i <= getNumberChannels(); i++) {
+			std::cout << "getting channem by name '" << _channels[i].getNickname() << "'" << std::endl;
+            if (!(_channels[i].getName().compare(name))) {
+                return _channels[i]; }
+			}
+			return (Channel());
+		}
+
 
 };
 

@@ -29,9 +29,11 @@ class User {
         void setUserVerification(int n)        { this->userVerified_ = n; }
         void setNickVerification(int n)        { this->nickVerified_ = n; }
         void setChannelVerification(int n)     { this->inChannel = n; }
-
+        void setInChannel(int n)                {this->inChannel = n;}
+        void setWhatChannel(std::string channelName) {this->whatChannel = channelName; }
         void setVerification(int value) {verified = value;}
         int  getVerification() {return (verified);}
+        int  getInChannel() {return inChannel;}
 
         //cmds
 
@@ -66,6 +68,7 @@ class User {
         int userVerified_;
         int nickVerified_;
         int inChannel;
+        std::string whatChannel;
         int noChannels; //limit of 10, check if it should behave like vector or stack
         // std::vector<Channel> channelList;
 };
