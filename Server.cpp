@@ -57,16 +57,15 @@ void	Server::handleClientMessage(std::string data, int client_fd)
         std::cout << cmd << std::endl;
         std::cout << message << std::endl;
         //CMDS
-        if (!(cmd.compare(0, 4, "PASS")))
-            { // add if client is authenticated yet to unlock user and other cmds, to do
-                if (user.getVerification() == 0){
-                    if (!(verifyPassword(message))) {
-                        user.setVerification(1);
-                        send(client_fd, PWDACCEPT, 20, 0);
-                        updateUser(user);
-                    } else 
-                        send(client_fd, PWDREJECT, 21, 0);
-                } 
+        if (!(cmd.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
+            if (user.getVerification() == 0){
+                if (!(verifyPassword(message))) {
+                    user.setVerification(1);
+                    send(client_fd, PWDACCEPT, 20, 0);
+                    updateUser(user);
+                } else 
+                    send(client_fd, PWDREJECT, 21, 0);
+            } 
         } else if (user.getVerification()) {  
             if (!(cmd.compare(0, 4, "USER"))) {
                 user.USER(message);
@@ -79,7 +78,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
             // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {
-         else {
+                else {
             std::cout << "Invalid command" << std::endl;
             send(client_fd, "Invalid command\n", 17, 0);
             // clientConsole(user);
@@ -88,8 +87,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             std::cout << "Invalid command" << std::endl;
             send(client_fd, "Invalid command\n", 17, 0);
             // clientConsole(user);
-        }
-            
+        }       
     }
     clientConsole(user);
 }
