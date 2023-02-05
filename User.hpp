@@ -32,6 +32,19 @@ class User {
         void setVerification(int value) {verified = value;}
         int  getVerification() {return (verified);}
 
+        //cmds 
+
+        User    USER(std::string username)
+        {
+            this->setUsername(username);
+            this->setUserVerification(1);
+            std::cout << "Client " << this->getFd() << "username set to " << this->getUsername().c_str() << std::endl;
+            send(this->getFd(), "Username set to ", 17, 0);
+            send(this->getFd(), this->getUsername().data(), username.size(), 0);
+            send(this->getFd(), "\n", 1, 0);
+            return (*this);
+        }
+
     private:
         int verified;
         int _fd;
@@ -44,5 +57,4 @@ class User {
 };
 
 void    clientConsole(User user);
-
 #endif

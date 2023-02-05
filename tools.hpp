@@ -31,8 +31,14 @@ std::string trimWhitespace(std::string s) {
 std::string removeLeadingSpace(std::string str)
 {
     std::size_t firstNonSpace = str.find_first_not_of(' ');
+    if (firstNonSpace == 0)
+        return str;
     str.erase(0, firstNonSpace);
     return str;
+}
+
+bool is_char_or_digit(const std::string &str) {
+  return str.length() > 4 ;
 }
 
 #endif
