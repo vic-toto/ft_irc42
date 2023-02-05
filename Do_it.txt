@@ -88,17 +88,20 @@ WHAT TO DO
 1. First of all, activate server and get it to listen DONE
 2. bind relation with port DONE
 3. get info from client DONE
-    - Store client port
+    - Store client port DONE
     - add channel vector to client class
 4. Set up tools
     - add instructions to send to client
     - incoming str from client cleaner DONE
     - name on terminal
+    - uodate user DONE
 5. verify password 
-    - display password ok on client
+    - display password ok on client DONE
 6. create user
+    - add check on username
     - display user 
 7. set nickname
+    - add check on nickname
     - show set nickname
 8. Confirm registration 
     - welcome message

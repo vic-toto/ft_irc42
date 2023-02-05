@@ -89,9 +89,27 @@ class	Server{
 		bool 		verifyPassword(std::string password);
 
 		//Client related
+		int			getNumberUsers() {return (_users.size()); }
 		void		handleClientMessage(std::string data, int client_fd);
 		//void		process_command(std::string data, int client_socket);
-		User		getUser(int fd) {return _users[fd];}
+		User		getUser(int fd) {
+			for (int i = 0; i < getNumberUsers(); i++) {
+            if (_users[i].getFd() == fd) {
+                return _users[i]; }
+			}
+			User User(fd);
+			this->addUser(User);
+			return (User);
+		}
+
+		void	updateUser(const User &user){
+			for (int i = 0; i < getNumberUsers(); i++){
+				if (_users[i].getFd() == user.getFd()) {
+					_users[i] = user;
+				}
+			}
+		}
+
 		void addUser(const User& user) {
         _users.push_back(user);
     	}

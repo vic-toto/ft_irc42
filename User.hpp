@@ -13,7 +13,7 @@ class User {
         std::string getUsername() const { return username_; }
         std::string getNickname() const { return nickname_; }
         std::string getPassword() const { return password_; }
-
+        int         getFd()       const { return this->_fd; }
         //void setUsername(int client_socket, std::string username) {
         //    username.erase(0,4); 
         //    size_t first = username.find_first_not_of(" \t\r\n");
