@@ -98,6 +98,14 @@ class	Server{
 			return (User());
 		}
 
+		User		getUser(std::string nick) {
+			for (int i = 0; i < getNumberUsers(); i++) {
+            if (_users[i].getNickname().compare(0, _users[i].getNickname().size(), nick)) {
+                return _users[i]; }
+			}
+			return (User());
+		}
+
 		void	updateUser(const User &user){
 			for (int i = 0; i < getNumberUsers(); i++){
 				if (_users[i].getFd() == user.getFd()) {

@@ -32,13 +32,7 @@ public:
 
 };
 
-Channel::Channel(std::string name, std::string password, User channelOperator)
-{
-}
 
-Channel::~Channel()
-{
-}
 
 
 #endif

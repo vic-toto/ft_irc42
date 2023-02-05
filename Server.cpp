@@ -50,7 +50,15 @@ void	Server::handleClientMessage(std::string data, int client_fd)
 {
     User user = getUser(client_fd);
     if(is_char_or_digit(data)) {
-
+        if (!(data.compare(0, 6, "PRVMSG")))
+        {
+            std::string receiverNick = removeLeadingSpace(data.substr(5, (data.size())));
+            User receiver = getUser(receiverNick);
+            send(receiver.getFd(), "New Private Message From ", 26, 0);
+            send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
+            send(receiver.getFd(), "\n", 1, 0);
+            send(receiver.getFd(), data.data(), data.size(), 0);
+        }
         std::string cmd = data.substr(0,4);
         std::string message = removeLeadingSpace(data.substr(5, (data.size())));
         std::cout << user.getVerification() << std::endl; 

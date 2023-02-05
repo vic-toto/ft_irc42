@@ -67,7 +67,7 @@ class User {
         int nickVerified_;
         int inChannel;
         int noChannels; //limit of 10, check if it should behave like vector or stack
-        std::vector<Channel> channelList;
+        // std::vector<Channel> channelList;
 };
 
 void    clientConsole(User user);
