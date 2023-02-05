@@ -22,6 +22,7 @@
 #include <queue>
 #include <vector>
 #include "User.hpp"
+#include "Channel.hpp"
 
 
 #define COLOR_GREEN "\x1b[32m"

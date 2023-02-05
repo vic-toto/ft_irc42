@@ -11,6 +11,7 @@ class User {
             this->userVerified_ = 0;
             this->nickVerified_ = 0;
             this->inChannel = 0;
+            this->noChannels = 0;
         }
 
         std::string getUsername() const { return username_; }
@@ -65,6 +66,8 @@ class User {
         int userVerified_;
         int nickVerified_;
         int inChannel;
+        int noChannels; //limit of 10, check if it should behave like vector or stack
+        std::vector<Channel> channelList;
 };
 
 void    clientConsole(User user);
