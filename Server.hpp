@@ -93,9 +93,7 @@ class	Server{
             if (_users[i].getFd() == fd) {
                 return _users[i]; }
 			}
-			User User(fd);
-			this->addUser(User);
-			return (User);
+			return (User());
 		}
 
 		void	updateUser(const User &user){

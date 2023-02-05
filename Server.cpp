@@ -48,50 +48,61 @@ int Server::start(int port)
 
 void	Server::handleClientMessage(std::string data, int client_fd) 
 {
-    if(data.empty())
-        return ;
     User user = getUser(client_fd);
-    std::string cmd = data.substr(0,4);
-    std::string message = removeLeadingSpace(data.substr(5, (data.size())));
-    printf("\nCMD %s\n", cmd.c_str());
-    printf("message %s\n", message.c_str());
-    std::cout << user.getVerification() << std::endl; 
-    //CMDS
-    if (!(cmd.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
-        if (user.getVerification() == -1){
-            if (!(verifyPassword(message))) {
-                user.setVerification(1);
-                send(client_fd, PWDACCEPT, 19, 0);
-                send(client_fd, "\nPlease set username with USER your_username\n", 46, 0);
-                updateUser(user);
-            } else {
-                send(client_fd, PWDREJECT, 21, 0);
-                // close the connection or take additional measures for rejected clients
-                }
-        }
-    }   
-    else if (user.getVerification() == 1){  
-        if (!(cmd.compare(0, 4, "USER"))) {
-                user.setUsername(message);
-                updateUser(user);
-                std::cout << "Client %d username set to %s\n " << client_fd << user.getUsername().c_str() << std::endl;
-                send(client_fd, "Username set to ", 17, 0);
-                send(client_fd, message.data(), message.size(), 0);
-                send(client_fd, "\n", 1, 0);
-        } else if (!(cmd.compare(0, 4, "NICK"))) {
-                user.setNickname(message);
-                updateUser(user);
-                std::cout << "Client nickname set \n " << client_fd << user.getNickname().c_str() << std::endl;
-                send(client_fd, "Nickname set to ", 17, 0);
-                send(client_fd, message.data(), message.size(), 0);
-                send(client_fd, "\n", 1, 0);
-        } // else if (!(cmd.compare(0, 4, "JOIN"))) {
-        // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
-        // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
-        // }  else if (!(cmd.compare(0, 4, "KICK"))) {
-    } else {
+    if(data.size() > 1) {
+
+        std::string cmd = data.substr(0,4);
+        printf("\nwe\n");
+        std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+        std::cout << user.getVerification() << std::endl; 
+        //CMDS
+        if (!(cmd.compare(0, 4, "PASS"))){ // add if client is authenticated yet to unlock user and other cmds, to do
+            if (user.getVerification() == 0){
+                if (!(verifyPassword(message))) {
+                    user.setVerification(1);
+                    send(client_fd, PWDACCEPT, 20, 0);
+                    //clientConsole(user);
+                    updateUser(user);
+                } else {
+                    send(client_fd, PWDREJECT, 21, 0);
+                    }
+            }
+        } //if (!(user.getUserVerification()))
+          //      send(user.getFd(), "\nPlease set username with USER your_nickname\n", 46, 0);   
+        else if (user.getVerification()) {  
+
+            if (!(cmd.compare(0, 4, "USER"))) {
+                    user.setUsername(message);
+                    user.setUserVerification(1);
+                    updateUser(user);
+                    std::cout << "Client " << client_fd << "username set to " << user.getUsername().c_str() << std::endl;
+                    send(client_fd, "Username set to ", 17, 0);
+                    send(client_fd, message.data(), message.size(), 0);
+                    send(client_fd, "\n", 1, 0);
+                    clientConsole(user);
+            } else if (!(cmd.compare(0, 4, "NICK"))) {
+                    user.setNickname(message);
+                    user.setNickVerification(1);
+                    updateUser(user);
+                    std::cout << "Client nickname set \n " << client_fd << user.getNickname().c_str() << std::endl;
+                    send(client_fd, "Nickname set to ", 17, 0);
+                    send(client_fd, message.data(), message.size(), 0);
+                    send(client_fd, "\n", 1, 0);
+                    clientConsole(user);
+             // else if (!(cmd.compare(0, 4, "JOIN"))) {
+            // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
+            // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
+            // }  else if (!(cmd.compare(0, 4, "KICK"))) {
+        } else {
         std::cout << "Invalid command" << std::endl;
+        send(client_fd, "Invalid command\n", 17, 0);
+        clientConsole(user);
+        }
     }
+    } else {
+    std::cout << "Invalid command" << std::endl;
+    send(client_fd, "Invalid command\n", 17, 0);
+    clientConsole(user);}
 }
 
 
@@ -133,12 +144,14 @@ void	Server::go()
 			fds.push_back(newClient);
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
-            send(newClient.fd, WELCOME, 84, 0);
-            User User(newClient.fd);
-            this->addUser(User);
+            User user(newClient.fd);
+            this->addUser(user);
+            if (!(user.getVerification()))
+                send(user.getFd(), WELCOME, 84, 0);
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
         {
+            
             if (fds[i].revents & POLLIN)
             {
                 char buffer[1024];
@@ -167,4 +180,21 @@ bool Server::verifyPassword(std::string password)
     std::cout << "verifying password " << password << std::endl;
     std::cout << "verifying server password " << this->getPassword() << std::endl;
     return (password.compare(0, this->getPassword().size(), this->getPassword()));
+}
+
+void    clientConsole(User user)
+{
+    if (!(user.getVerification()))
+        send(user.getFd(), WELCOME, 84, 0);
+    else {
+        if (!(user.getUserVerification())){
+            send(user.getFd(), "Please set username with USER your_username\n", 46, 0);
+            return ; }
+        if (!(user.getNickVerification())) {
+            send(user.getFd(), "\nPlease set nickname with NICK your_nickname\n", 46, 0);
+            return ; }
+    }
+    send(user.getFd(), user.getNickname().data(), user.getNickname().size() - 1, 0);
+    send(user.getFd(), " - ", 3, 0);
+
 }
