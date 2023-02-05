@@ -41,4 +41,9 @@ bool is_char_or_digit(const std::string &str) {
   return str.length() > 4 ;
 }
 
+int substr_to_first_space_or_end(const std::string &str) {
+  std::size_t pos = str.find(' ');
+  return pos != std::string::npos ? pos : 0;
+}
+
 #endif

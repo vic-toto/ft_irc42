@@ -87,6 +87,15 @@ class	Server{
 		bool 		verifyPassword(std::string password) {return (password.compare(0, this->getPassword().size(), this->getPassword())); };
 
 		//Client related
+		bool		isUser(std::string nick)
+		{
+			for (int i = 0; i <= getNumberUsers(); i++)
+			{
+				if (!(_users[i].getNickname().compare(0, _users[i].getNickname().size(), nick)))
+					return true;
+			}
+			return false;
+		}
 		int			getNumberUsers() {return (_users.size()); }
 		void		handleClientMessage(std::string data, int client_fd);
 		//void		process_command(std::string data, int client_socket);

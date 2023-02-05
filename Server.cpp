@@ -52,12 +52,28 @@ void	Server::handleClientMessage(std::string data, int client_fd)
     if(is_char_or_digit(data)) {
         if (!(data.compare(0, 6, "PRVMSG")))
         {
-            std::string receiverNick = removeLeadingSpace(data.substr(5, (data.size())));
-            User receiver = getUser(receiverNick);
-            send(receiver.getFd(), "New Private Message From ", 26, 0);
-            send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-            send(receiver.getFd(), "\n", 1, 0);
-            send(receiver.getFd(), data.data(), data.size(), 0);
+            std::string receiverNick = removeLeadingSpace(data.substr(7, (data.size())));
+            int endNick = substr_to_first_space_or_end(receiverNick);
+            if (endNick == 0){
+                send(user.getFd(), "Error, missing message \n ", 26, 0);
+            }
+            else
+            {
+                receiverNick = receiverNick.substr(0, endNick);
+                std::cout << receiverNick << std::endl;
+                if (isUser(receiverNick)){
+                User receiver = getUser(receiverNick);
+                std::string message = removeLeadingSpace(data.substr(6 + receiver.getNickname().size(), data.size()));
+                send(receiver.getFd(), "New Private Message From ", 26, 0);
+                send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
+                send(receiver.getFd(), "\n", 1, 0);
+                send(receiver.getFd(), data.data(), data.size(), 0);
+                } else {
+                    send(user.getFd(), "Error, no user with nick ", 26, 0);
+                    send(user.getFd(), receiverNick.data(), receiverNick.size(), 0);
+                }
+            }
+            
         }
         std::string cmd = data.substr(0,4);
         std::string message = removeLeadingSpace(data.substr(5, (data.size())));
