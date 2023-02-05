@@ -61,13 +61,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
         if (user.getVerification() == -1){
             if (!(verifyPassword(message))) {
                 user.setVerification(1);
-                send(client_fd, PWDACCEPT, 14, 0);
+                send(client_fd, PWDACCEPT, 19, 0);
                 send(client_fd, "\nPlease set username with USER your_username\n", 46, 0);
                 updateUser(user);
             } else {
-                //std::cout << "Client password accepted for client fd " << client_fd << std::endl;
-               // std::cout << COLOR_RED << "Wrong password for client fd " << client_fd << COLOR_DEFAULT << std::endl;
-                send(client_fd, PWDREJECT, 26, 0);
+                send(client_fd, PWDREJECT, 21, 0);
                 // close the connection or take additional measures for rejected clients
                 }
         }
@@ -82,11 +80,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 send(client_fd, "\n", 1, 0);
         } else if (!(cmd.compare(0, 4, "NICK"))) {
                 user.setNickname(message);
+                updateUser(user);
                 std::cout << "Client nickname set \n " << client_fd << user.getNickname().c_str() << std::endl;
                 send(client_fd, "Nickname set to ", 17, 0);
                 send(client_fd, message.data(), message.size(), 0);
                 send(client_fd, "\n", 1, 0);
-                updateUser(user);
         }
     } else {
         std::cout << "Invalid command" << std::endl;
