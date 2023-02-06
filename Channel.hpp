@@ -30,11 +30,15 @@ public:
     Channel(std::string name, std::string password, User channelOperator, int invite);
     ~Channel() {};
 
+
     void    setName(std::string name) {this->name = name;}
+    void    setChannelOperator(User user) {this->channelOperator = user;}
     void    addUser(User user) {usersInChannel.push_back(user);}
+    
 
+		std::vector<User>& getUsersInChannel() { return usersInChannel; }
     std::string getName() const {return this->name;}
-
+    int         getNoUsersInChannel() {return usersInChannel.size();}
     bool	getblackList(std::string nick){
 			for (unsigned long i = 0; i < blackList.size(); i++) {
       		if (blackList[i].getNickname() == nick) {

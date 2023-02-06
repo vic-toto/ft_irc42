@@ -109,6 +109,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     if (!(channel.getblackList(user.getNickname())))
                     {
                         channel.addUser(user);
+                        channel.setChannelOperator(user);
                         user.setInChannel(1);
                         user.setWhatChannel(channel.getName());
                         updateUser(user);
@@ -125,9 +126,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     updateUser(user);
                     addChannel(channel);
                 }
+            } else if (user.getInChannel())
+            {
+                sendMessageToChannel(user, message);
             }
             // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
-            // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {
                 else {
             std::cout << "Invalid command" << std::endl;
