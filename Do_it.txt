@@ -70,11 +70,11 @@ Commands of USR
            ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
            RPL_TOPIC
 
-    NICK    changes nickname
+    NICK    changes nickname DONE
         - checks for same nicknames
         - if same, blocks
-        - if new, sets and destroys previous nick 
-    QUIT    client session ends
+        - if new, sets and destroys previous nick DONE
+    QUIT    client session ends DONE
 Commands of Operator User
     KICK - eliminates a user from a channel
     MODE - changes the channel mode
@@ -89,9 +89,9 @@ WHAT TO DO
 2. bind relation with port DONE
 3. get info from client DONE
     - Store client port DONE
-    - add channel vector to client class
+    - add channel vector to SERVER class DONE
 4. Set up tools
-    - add instructions to send to client
+    - add instructions to send to client DONE
     - incoming str from client cleaner DONE
     - name on terminal DONE
     - uodate user DONE
@@ -105,12 +105,35 @@ WHAT TO DO
     - show set nickname DONE
 8. Confirm registration 
     - welcome message
-9. Allow PRVMSG between clients
-10. Create channels
-    - store in server vector 
-    - store in user vector
+9. Allow PRVMSG between clients DONE
+    - change cmd to /msg not PRVMSG
+10. Create channels 
+    - store in server vector DONE
+    - store channels in user
     - has a name and can have a password
-    - user that creates channel is channel operator
+    - user that creates channel is channel operator DONE
+    - operator of channel can kick out users
+    - users can be in max 10 channels at the time
+    - returns error if user is in blacklist
+    - /topic channel_name new_channel_name changes channel name
+    - channel modes 
+        +t only operatos can change channel name
+        +i only via invite (/invite username channel name, automatic message invites user to channel)
+        +m only operator can send message
+        +s secret 
+        +p private, like s but I can see users
+
+    -add general channel command to show channels in server
+
+11. General cmd
+    - /list, shows all channels (name, number of users, modes)
+    - /whois username shows info on a user (nick, real name, hostname, server, channels currently in, marks like bans)
+    - /me displays a message next to the username like "/me waves hello" is username waves hello;
+
+12. clean code
+13. check memory
+14. test the sh**t out of it 
+
 
 
 
