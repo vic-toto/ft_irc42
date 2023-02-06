@@ -114,7 +114,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         updateUser(user);
                         updateChannel(channel);
                         //need to add a check for nickname changes. 
-                        // if nick changes, it has to change in all channels
+                        // if nick changes, it has to change in all chan
                     }
                 } else {
                     Channel channel;
