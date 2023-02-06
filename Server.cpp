@@ -109,17 +109,17 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     if (!(channel.getblackList(user.getNickname())))
                     {
                         channel.addUser(user);
-                        channel.setChannelOperator(user);
                         user.setInChannel(1);
                         user.setWhatChannel(channel.getName());
                         updateUser(user);
+                        updateChannel(channel);
+                        //need to add a check for nickname changes. 
+                        // if nick changes, it has to change in all channels
                     }
-                    // saves user in channel list
-                    // updates the inChannel status
-                    //saves in what channel
                 } else {
                     Channel channel;
                     channel.setName(message);
+                    channel.setChannelOperator(user);
                     channel.addUser(user);
                     user.setInChannel(1);
                     user.setWhatChannel(message);

@@ -178,9 +178,11 @@ class	Server{
 			Channel channel = getChannel(user.getWhatChannel());
 			for (int i = 0; i < channel.getNoUsersInChannel(); i++){
 				User receiver = channel.getUsersInChannel()[i];
+				send(receiver.getFd(), "\n", 1, 0);
 				send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
 				send(receiver.getFd(), " - ", 3, 0);
 				send(receiver.getFd(), message.data(), message.size(), 0);
+				send(receiver.getFd(), "\n", 1, 0);
 			}
 		}
 
