@@ -127,10 +127,10 @@ class	Server{
 			}
 		}
 
-		void	updateChannel(const Channel& channel){
-			for (int i = 0; i < _channels.size(); i++){
-				if (_channels[i].getName() == channel.getName()) {
-					_channels[i] = channel;
+		void	updateChannel(const Channel& chan){
+			for (unsigned long i = 0; i < _channels.size(); i++){
+				if (_channels[i].getName() == chan.getName()) {
+					_channels[i] = chan;
 				}
 			}
 		}
@@ -150,7 +150,7 @@ class	Server{
 		// channels
 		bool	channelExists(std::string channelName)
 		{
-			for (int i = 0; i < _channels.size(); i++) {
+			for (unsigned long i = 0; i < _channels.size(); i++) {
       		if (_channels[i].getName() == channelName) {
       		  return true;
       		}
@@ -166,7 +166,7 @@ class	Server{
 
 		Channel		getChannel(std::string name) {
 			for (int i = 0; i <= getNumberChannels(); i++) {
-			std::cout << "getting channem by name '" << _channels[i].getNickname() << "'" << std::endl;
+			std::cout << "getting channem by name '" << _channels[i].getName() << "'" << std::endl;
             if (!(_channels[i].getName().compare(name))) {
                 return _channels[i]; }
 			}

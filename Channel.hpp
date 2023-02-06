@@ -1,7 +1,6 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include "User.hpp"
 
 //CHANNEL - named group of one or more clinets which all receive message addressed to channel 
 //        - names are str with & or #
@@ -29,15 +28,15 @@ public:
     Channel() {}
     Channel(std::string name, std::string password, User channelOperator);
     Channel(std::string name, std::string password, User channelOperator, int invite);
-    ~Channel();
+    ~Channel() {};
 
     void    setName(std::string name) {this->name = name;}
     void    addUser(User user) {usersInChannel.push_back(user);}
 
-    std::string getName() {return this->name;}
+    std::string getName() const {return this->name;}
 
-    bool	blackList(std::string nick){
-			for (int i = 0; i < blackList.size(); i++) {
+    bool	getblackList(std::string nick){
+			for (unsigned long i = 0; i < blackList.size(); i++) {
       		if (blackList[i].getNickname() == nick) {
       		  return true;
       		}

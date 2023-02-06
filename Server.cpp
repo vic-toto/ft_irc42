@@ -101,31 +101,31 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 user.NICK(message);
                 updateUser(user);
             }
-         //   else if (!(cmd.compare(0, 4, "JOIN")) && !(user.getInChannel())) {
-         //       if (message.empty() || message[0] != '#' || message.size() > 200)
-         //           send(user.getFd(), "Invalid channel name\n", 22, 0);
-         //       if (channelExists(message)){
-         //           Channel channel = getChannel(message);
-         //           if (!(channel.blackList(user.getNickname())))
-         //           {
-         //               channel.addUser(user);
-         //               user.setInChannel(1);
-         //               user.setWhatChannel(channel.getName());
-         //               updateUser(user);
-         //           }
-         //           // saves user in channel list
-         //           // updates the inChannel status
-         //           //saves in what channel
-         //       } else {
-         //           Channel channel;
-         //           channel.setName(message);
-         //           channel.addUser(user);
-         //           user.setInChannel(1);
-         //           user.setWhatChannel(message);
-         //           updateUser(user);
-         //           addChannel(channel);
-         //       }
-         //   }
+            else if (!(cmd.compare(0, 4, "JOIN")) && !(user.getInChannel())) {
+                if (message.empty() || message[0] != '#' || message.size() > 200)
+                    send(user.getFd(), "Invalid channel name\n", 22, 0);
+                if (channelExists(message)){
+                    Channel channel = getChannel(message);
+                    if (!(channel.getblackList(user.getNickname())))
+                    {
+                        channel.addUser(user);
+                        user.setInChannel(1);
+                        user.setWhatChannel(channel.getName());
+                        updateUser(user);
+                    }
+                    // saves user in channel list
+                    // updates the inChannel status
+                    //saves in what channel
+                } else {
+                    Channel channel;
+                    channel.setName(message);
+                    channel.addUser(user);
+                    user.setInChannel(1);
+                    user.setWhatChannel(message);
+                    updateUser(user);
+                    addChannel(channel);
+                }
+            }
             // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
             // }  else if (!(cmd.compare(0, 4, "JOIN"))) {
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {
@@ -226,4 +226,7 @@ void    clientConsole(User user)
     }
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 3, 0);
+    if (user.getInChannel()){
+        send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
+        send(user.getFd(), " - ", 3, 0);}
 }

@@ -34,7 +34,7 @@ class User {
         void setVerification(int value) {verified = value;}
         int  getVerification() {return (verified);}
         int  getInChannel() {return inChannel;}
-
+        std::string getWhatChannel() {return this->whatChannel;}
         //cmds
 
         User    USER(std::string username)
