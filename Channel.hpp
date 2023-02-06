@@ -1,6 +1,8 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+#include <vector>
+#include <iterator>
 
 //CHANNEL - named group of one or more clinets which all receive message addressed to channel 
 //        - names are str with & or #
@@ -35,8 +37,17 @@ public:
     void    setChannelOperator(User user) {this->channelOperator = user;}
     void    addUser(User user) {usersInChannel.push_back(user);}
     
+    void removeUser(User &user) {
+        for (std::vector<User>::iterator it = usersInChannel.begin(); it != usersInChannel.end(); it++) {
+            if (it->getNickname() == user.getNickname()) {
+                // If a user with the same nickname is found, remove them from the list
+                usersInChannel.erase(it);
+                break;
+            }
+        }
+    }
 
-		std::vector<User>& getUsersInChannel() { return usersInChannel; }
+	std::vector<User>& getUsersInChannel() { return usersInChannel; }
     std::string getName() const {return this->name;}
     int         getNoUsersInChannel() {return usersInChannel.size();}
     bool	getblackList(std::string nick){

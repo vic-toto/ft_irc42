@@ -70,9 +70,9 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 message = cleanString(message);
                 send(receiver.getFd(), "\nNew Private Message From ", 27, 0);
                 send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-                send(receiver.getFd(), "\n", 1, 0);
+                send(receiver.getFd(), "\n", 2, 0);
                 send(receiver.getFd(), message.data(), message.size(), 0);
-                send(receiver.getFd(), "\n", 1, 0);
+                send(receiver.getFd(), "\n", 2, 0);
                 } else {
                     send(user.getFd(), "Error, no user with nick ", 26, 0);
                     send(user.getFd(), receiverNick.data(), receiverNick.size(), 0);
@@ -97,11 +97,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             if (!(cmd.compare(0, 4, "USER"))) {
                 user.USER(message);
                 updateUser(user);
-            } else if (!(cmd.compare(0, 4, "NICK"))) {
+            } else if (!(data.compare(0, 5, "/nick"))) {
                 user.NICK(message);
                 updateUser(user);
             }
-            else if (!(cmd.compare(0, 4, "JOIN")) && !(user.getInChannel())) {
+            else if (!(data.compare(0, 5, "/join")) && !(user.getInChannel())) {
                 if (message.empty() || message[0] != '#' || message.size() > 200)
                     send(user.getFd(), "Invalid channel name\n", 22, 0);
                 if (channelExists(message)){
@@ -126,11 +126,21 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     updateUser(user);
                     addChannel(channel);
                 }
-            } else if (user.getInChannel())
-            {
+            } else if (user.getInChannel()){
+                if (!(data.compare(0, 5, "/part")) || !(data.compare(0, 6, "/leave")))
+                {
+                    Channel channel = getChannel(user.getWhatChannel());
+                    channel.removeUser(user);
+                    // have to add check if no users in channel, delete channel
+                    user.setInChannel(0);
+                    user.setWhatChannel("");
+                    updateChannel(channel);
+                    updateUser(user);
+
+                }
                 sendMessageToChannel(user, message);
-            }
-            // }  else if (!(cmd.compare(0, 4, "QUIT"))) {
+            } else if (!(data.compare(0, 5, "/quit")))
+                sigint(SIGINT); // add delete users and other memory shit
             // }  else if (!(cmd.compare(0, 4, "KICK"))) {
                 else {
             std::cout << "Invalid command" << std::endl;
@@ -206,7 +216,6 @@ void	Server::go()
                 }
                 std::string message(buffer, ret);
                 removeLeadingSpace(message);
-				printf("%s client message of %d\n\n", message.c_str(), fds[i].fd);
                 this->handleClientMessage(message, fds[i].fd);
             }
 		}
@@ -228,8 +237,8 @@ void    clientConsole(User user)
         }
     }
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-    send(user.getFd(), " - ", 3, 0);
+    send(user.getFd(), " - ", 4, 0);
     if (user.getInChannel()){
         send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
-        send(user.getFd(), " - ", 3, 0);}
+        send(user.getFd(), " - ", 4, 0);}
 }

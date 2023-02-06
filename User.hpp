@@ -41,10 +41,9 @@ class User {
         {
             this->setUsername(username);
             this->setUserVerification(1);
-            std::cout << "Client " << this->getFd() << "username set to " << this->getUsername().c_str() << std::endl;
-            send(this->getFd(), "Username set to ", 17, 0);
+            send(this->getFd(), "\nUsername set to ", 18, 0);
             send(this->getFd(), this->getUsername().data(), username.size(), 0);
-            send(this->getFd(), "\n", 1, 0);
+            send(this->getFd(), "\n", 2, 0);
             return (*this);
         }
 
@@ -52,10 +51,9 @@ class User {
         {
             this->setNickname(nickname);
             this->setNickVerification(1);
-            std::cout << "Client " << this->getFd() << "username set to " << this->getNickname().c_str() << std::endl;
-            send(this->getFd(), "Nickname set to ", 17, 0);
+            send(this->getFd(), "\nNickname set to ", 17, 0);
             send(this->getFd(), this->getNickname().data(), nickname.size(), 0);
-            send(this->getFd(), "\n", 1, 0);
+            send(this->getFd(), "\n", 2, 0);
             return (*this);
         }
 
