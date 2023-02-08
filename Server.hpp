@@ -173,7 +173,18 @@ class	Server{
 			return (Channel());
 		}
 
-
+		// void	sendMessageToClient(User const& client, std::string message){
+		// 	struct pollfd *fd;
+		// 	fd->fd = client.getFd();
+		// 	
+		// 	int res = poll(fd, fd.size(), -1);
+		// 	if (res < 0) {
+		// 		printf("ÿooooo\n");
+		// 		return ;
+		// 	} else if (fd->revents && POLLOUT) {
+		// 		send(fd->fd, message.data(), message.size(), 0);
+		// 	}
+		// }
 		void	sendMessageToChannel(User const &user, std::string message){
 			Channel channel = getChannel(user.getWhatChannel());
 			for (int i = 0; i <= channel.getNoUsersInChannel(); i++){

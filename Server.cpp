@@ -197,7 +197,7 @@ void	Server::go()
             User user(newClient.fd);
             this->addUser(user);
             if (!(user.getVerification()))
-                send(user.getFd(), WELCOME, 84, 0);
+                // send(user.getFd(), WELCOME, 84, 0);
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
         { 
