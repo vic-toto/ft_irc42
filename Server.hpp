@@ -173,18 +173,27 @@ class	Server{
 			return (Channel());
 		}
 
-		// void	sendMessageToClient(User const& client, std::string message){
-		// 	struct pollfd *fd;
-		// 	fd->fd = client.getFd();
-		// 	
-		// 	int res = poll(fd, fd.size(), -1);
-		// 	if (res < 0) {
-		// 		printf("ÿooooo\n");
-		// 		return ;
-		// 	} else if (fd->revents && POLLOUT) {
-		// 		send(fd->fd, message.data(), message.size(), 0);
-		// 	}
-		// }
+		int checkReadyToWrite(int fd)
+		{
+		    struct pollfd pfd;
+		    pfd.fd = fd;
+		    pfd.events = POLLOUT;
+		    pfd.revents = 0;
+
+		    int ret = poll(&pfd, 1, 0);
+		    if (ret < 0) {
+		        std::cout << "Error POLLOUT for User " << fd << std::endl;
+		        return 0;
+		    } else if (ret == 0) {
+		        std::cout << "Fd " << fd << " for User not ready for writing." << std::endl;
+		    }
+
+		    if (pfd.revents & POLLOUT)
+		        return 1;
+
+		    return 0;
+		}
+
 		void	sendMessageToChannel(User const &user, std::string message){
 			Channel channel = getChannel(user.getWhatChannel());
 			for (int i = 0; i <= channel.getNoUsersInChannel(); i++){

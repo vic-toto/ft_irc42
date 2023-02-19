@@ -5,13 +5,14 @@
 class User {
     public:
         User() {}
-        User(int fd) {
+        User(pollfd Client, int fd) {
             this->_fd = fd;
             this->verified = 0;
             this->userVerified_ = 0;
             this->nickVerified_ = 0;
             this->inChannel = 0;
             this->noChannels = 0;
+            this->_client = Client;
         }
 
         std::string getUsername() const { return username_; }
@@ -35,6 +36,7 @@ class User {
         int  getVerification() {return (verified);}
         int  getInChannel() {return inChannel;}
         std::string getWhatChannel() const  {return this->whatChannel;}
+        pollfd  getPollFd() {return this->_client;}
         //cmds
 
         User    USER(std::string username)
@@ -57,8 +59,11 @@ class User {
             return (*this);
         }
 
+        
+
     private:
         int verified;
+        pollfd  _client;
         int _fd;
         std::string username_;
         std::string nickname_;

@@ -48,6 +48,7 @@ int Server::start(int port)
 
 void	Server::handleClientMessage(std::string data, int client_fd) 
 {
+    std::cout << "here" << std::endl;
     User user = getUser(client_fd);
     if(is_char_or_digit(data)) {
         if (!(data.compare(0, 6, "PRVMSG")))
@@ -164,13 +165,13 @@ void	Server::go()
 	std::vector<pollfd> fds;
 	struct pollfd pfd;
 	pfd.fd = this->server_socket;
-	pfd.events = POLLIN;
+	pfd.events = POLLIN | POLLOUT;
 	pfd.revents = 0;
 	fds.push_back(pfd);
     
 	while (true)
     {
-        int ret = poll(fds.data(), fds.size(), -1);
+        int ret = poll(fds.data(), fds.size(), 0);
         if (ret < 0)
         {
             std::cerr << "Error polling: " << strerror(errno) << std::endl;
@@ -187,23 +188,27 @@ void	Server::go()
                 std::cerr << "Error accepting connection: " << strerror(errno) << std::endl;
                 continue;
             }
+            int flags = fcntl(client_socket, F_GETFL, 0);
+            fcntl(client_socket, F_SETFL, flags | O_NONBLOCK);
 			struct pollfd newClient;
 			newClient.fd = client_socket;
-			newClient.events = POLLIN;
+			newClient.events = POLLIN | POLLOUT;
 			newClient.revents = 0;
 			fds.push_back(newClient);
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
-            User user(newClient.fd);
+            User user(newClient, newClient.fd);
             this->addUser(user);
-            if (!(user.getVerification()))
-                // send(user.getFd(), WELCOME, 84, 0);
+            if (!(user.getVerification())){
+                if (checkReadyToWrite(user.getFd())){
+                    std::cout << "here\n" << std::endl;
+                    send(user.getFd(), WELCOME, 84, 0);}
+            }
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
         { 
             if (fds[i].revents & POLLIN)
             {
-                std::cout << "no of clients " << getNumberUsers() << std::endl;
                 char buffer[1024];
                 int ret = recv(fds[i].fd, buffer, sizeof(buffer), 0);
                 if (ret <= 0)
@@ -215,11 +220,22 @@ void	Server::go()
                     continue;
                 }
                 std::string message(buffer, ret);
+                std::cout << message << std::endl;
                 removeLeadingSpace(message);
-                this->handleClientMessage(message, fds[i].fd);
-            }
-		}
-	}
+                //
+                int check = poll(&fds[i], 1, 0);
+                if (check < 0)
+                {
+                    std::cerr << "Error polling: " << strerror(errno) << std::endl;
+                    continue;
+                }
+                std::cout << message << std::endl;
+                if (fds[i].revents & POLLOUT)
+                    this->handleClientMessage(message, fds[i].fd);
+            
+		    }
+	    }
+    }
 }
 
 void    clientConsole(User user)
