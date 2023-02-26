@@ -1,0 +1,16 @@
+{
+    "configurations": [
+    {
+        "name": "LLDB DELCAZZO",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "/Users/victoriaceccaronideckx/Desktop/ft_irc42/ircserv",
+        "args": ["4242", "secret"],
+        "stopAtEntry": false,
+        "cwd": "${fileDirname}",
+        "environment": [],
+        "externalConsole": true,
+        "MIMode": "lldb"
+    }
+    ]
+}

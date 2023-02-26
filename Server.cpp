@@ -3,6 +3,7 @@
 #include "clientMessages.hpp"
 // STEP 1
 
+
 int Server::start(int port)
 {
     int server_socket;
@@ -48,112 +49,103 @@ int Server::start(int port)
 
 void	Server::handleClientMessage(std::string data, int client_fd) 
 {
-    std::cout << "here" << std::endl;
     User user = getUser(client_fd);
     if(is_char_or_digit(data)) {
-        if (!(data.compare(0, 6, "PRVMSG")))
-        {
-            std::string receiverNick = removeLeadingSpace(data.substr(7, (data.size())));
-            int endNick = substr_to_first_space_or_end(receiverNick);
-            std::cout << "first " << receiverNick << " " << endNick << std::endl;
-            if (endNick == 0){
-                send(user.getFd(), "Error, missing message \n ", 26, 0);
-            }
-            else
-            {
-                std::cout << receiverNick << " " << endNick << std::endl;
-                receiverNick = receiverNick.substr(0, endNick);
-                std::cout << receiverNick << " " << endNick << std::endl;
-                if (isUser(receiverNick)){
-                User receiver = getUser(receiverNick);
-                std::string message = removeLeadingSpace(data.substr(6, data.size()));
-                message.substr(0, receiverNick.size());
-                message = cleanString(message);
-                send(receiver.getFd(), "\nNew Private Message From ", 27, 0);
-                send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-                send(receiver.getFd(), "\n", 2, 0);
-                send(receiver.getFd(), message.data(), message.size(), 0);
-                send(receiver.getFd(), "\n", 2, 0);
-                } else {
-                    send(user.getFd(), "Error, no user with nick ", 26, 0);
-                    send(user.getFd(), receiverNick.data(), receiverNick.size(), 0);
+        if (isCmd(data)){
+            if (!(data.compare(0, 4, "/msg"))){
+                std::string receiverNick = removeLeadingSpace(data.substr(4, (data.size())));
+                int endNick = substr_to_first_space_or_end(receiverNick);
+                if (endNick == 0)
+                    sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
+                else {
+                    receiverNick = receiverNick.substr(0, endNick);
+                    std::cout << receiverNick << std::endl;
+                    if (isUser(receiverNick)){
+                        User receiver = getUser(receiverNick);
+                        std::string message = removeLeadingSpace(data.substr(receiverNick.size(), data.size()));
+                        // message.substr(0, receiverNick.size());
+                        std::cout << message << std::endl;
+                        message = cleanString(message);
+                        sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
+
+                    } else 
+                        sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
                 }
             }
-            
-        } else {
-        std::string cmd = data.substr(0,4);
-        std::string message = removeLeadingSpace(data.substr(5, (data.size())));
-        message = cleanString(message);
-        //CMDS
-        if (!(cmd.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
-            if (user.getVerification() == 0){
-                if (!(verifyPassword(message))) {
-                    user.setVerification(1);
-                    send(client_fd, PWDACCEPT, 20, 0);
-                    updateUser(user);
-                } else 
-                    send(client_fd, PWDREJECT, 21, 0);
-            } 
-        } else if (user.getVerification()) {  
-            if (!(cmd.compare(0, 4, "USER"))) {
-                user.USER(message);
-                updateUser(user);
-            } else if (!(data.compare(0, 5, "/nick"))) {
-                user.NICK(message);
-                updateUser(user);
-            }
-            else if (!(data.compare(0, 5, "/join")) && !(user.getInChannel())) {
-                if (message.empty() || message[0] != '#' || message.size() > 200)
-                    send(user.getFd(), "Invalid channel name\n", 22, 0);
-                if (channelExists(message)){
-                    Channel channel = getChannel(message);
-                    if (!(channel.getblackList(user.getNickname())))
-                    {
+            if (!(data.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
+                std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+                if (user.getVerification() == 0){
+                    if (!(verifyPassword(message))) {
+                        user.setVerification(1);
+                        send(client_fd, PWDACCEPT, 20, 0);
+                        updateUser(user);
+                }} 
+            } else if (user.getVerification()) {  
+                if (!(data.compare(0, 4, "USER"))) {
+                    std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+                    if (message.empty() || message[0] == '#' || message.size() > 200)
+                        send(user.getFd(), "Invalid username\n", 22, 0);
+                    else if (isUser(message))
+                        send(user.getFd(), "Username already in use\n", 24, 0);
+                    else {
+                        user.USER(message);
+                        updateUser(user);
+                    }
+                } else if (!(data.compare(0, 5, "/nick"))) {
+                    std::string message = removeLeadingSpace(data.substr(6, (data.size())));
+                    if (message.empty() || message[0] == '#' || message.size() > 200)
+                        send(user.getFd(), "Invalid nickname\n", 22, 0);
+                    else if (isUser(message))
+                        send(user.getFd(), "Nickname already in use\n", 24, 0);
+                    else {
+                        user.NICK(message);
+                        updateUser(user);
+                    }
+                } else if (!(data.compare(0, 5, "/join")) && !(user.getInChannel())) {
+                    std::string message = removeLeadingSpace(data.substr(6, (data.size())));
+                    if (message.empty() || message[0] != '#' || message.size() > 200)
+                        send(user.getFd(), "Invalid channel name\n", 22, 0);
+                    if (channelExists(message)){
+                        Channel channel = getChannel(message);
+                        if (!(channel.getblackList(user.getNickname()))){
+                            channel.addUser(user);
+                            user.setInChannel(1);
+                            user.setWhatChannel(channel.getName());
+                            updateUser(user);
+                            updateChannel(channel);
+                            // sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
+                            // need to add a check for nickname changes. 
+                            // if nick changes, it has to change in all chan
+                            }
+                    } else {
+                        Channel channel;
+                        channel.setName(message.substr(0, message.size() - 1));
+                        channel.setChannelOperator(user);
                         channel.addUser(user);
                         user.setInChannel(1);
-                        user.setWhatChannel(channel.getName());
+                        user.setWhatChannel(message.substr(0, message.size() - 1));
                         updateUser(user);
-                        updateChannel(channel);
-                        //need to add a check for nickname changes. 
-                        // if nick changes, it has to change in all chan
+                        addChannel(channel);
                     }
-                } else {
-                    Channel channel;
-                    channel.setName(message);
-                    channel.setChannelOperator(user);
-                    channel.addUser(user);
-                    user.setInChannel(1);
-                    user.setWhatChannel(message);
-                    updateUser(user);
-                    addChannel(channel);
                 }
-            } else if (user.getInChannel()){
-                if (!(data.compare(0, 5, "/part")) || !(data.compare(0, 6, "/leave")))
-                {
-                    Channel channel = getChannel(user.getWhatChannel());
-                    channel.removeUser(user);
-                    // have to add check if no users in channel, delete channel
-                    user.setInChannel(0);
-                    user.setWhatChannel("");
-                    updateChannel(channel);
-                    updateUser(user);
-
-                }
-                sendMessageToChannel(user, message);
-            } else if (!(data.compare(0, 5, "/quit")))
-                sigint(SIGINT); // add delete users and other memory shit
-            // }  else if (!(cmd.compare(0, 4, "KICK"))) {
-                else {
-            std::cout << "Invalid command" << std::endl;
-            send(client_fd, "Invalid command\n", 17, 0);
-            // clientConsole(user);
             }
-        } else {
-            std::cout << "Invalid command" << std::endl;
-            send(client_fd, "Invalid command\n", 17, 0);
-            // clientConsole(user);
-        } 
-        }      
+        } else if (user.getInChannel()){
+            if (!(data.compare(0, 5, "/part")) || !(data.compare(0, 6, "/leave"))){
+                user.setInChannel(0);
+                Channel channel = getChannel(user.getWhatChannel());
+                channel.removeUser(user);
+                user.setWhatChannel(0);
+                updateChannel(channel);
+                updateUser(user);
+                // sendMessageToChannel(user, " has left the server.\n"); // TODO: check \n
+                // have to add check if no users in channel, delete channel
+            }
+            std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+            sendMessageToChannel(user, data);
+        } else if (!(data.compare(0, 5, "/quit"))){
+            sigint(SIGINT); // add delete users and other memory shit
+        } else 
+            sendMessageToReceiver(client_fd, "Server :", "Invalid Command\n");      
     }
     clientConsole(user);
 }
@@ -197,12 +189,11 @@ void	Server::go()
 			fds.push_back(newClient);
             std::cout << "Incoming connection from " << inet_ntoa(client_sock.sin_addr) << ":" << ntohs(client_sock.sin_port) << std::endl;
             std::cout << "Secure connection and confirm" << std::endl;
-            User user(newClient, newClient.fd);
-            this->addUser(user);
-            if (!(user.getVerification())){
-                if (checkReadyToWrite(user.getFd())){
-                    std::cout << "here\n" << std::endl;
-                    send(user.getFd(), WELCOME, 84, 0);}
+            User* user = new User(newClient, newClient.fd);
+            this->addUser(*user);
+            if (!(user->getVerification())){
+                if (checkReadyToWrite(user->getFd())){
+                    send(user->getFd(), WELCOME, 84, 0);}
             }
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
@@ -248,13 +239,14 @@ void    clientConsole(User user)
             send(user.getFd(), "\nPlease set username with USER your_username\n", 46, 0);
             return ; }
         if (!(user.getNickVerification())) {
-            send(user.getFd(), "\nPlease set nickname with NICK your_nickname\n", 46, 0);
+            send(user.getFd(), "\nPlease set nickname with /nick your_nickname\n", 46, 0);
             return ; 
         }
     }
-    send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-    send(user.getFd(), " - ", 4, 0);
     if (user.getInChannel()){
         send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
         send(user.getFd(), " - ", 4, 0);}
+    send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
+    send(user.getFd(), " - ", 4, 0);
+    
 }

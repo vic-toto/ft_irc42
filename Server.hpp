@@ -92,6 +92,7 @@ class	Server{
 		{
 			for (int i = 0; i < getNumberUsers(); i++)
 			{
+				nick.substr(0, nick.size() - 1);
 				std::cout << "checking user nick '" << _users[i].getNickname() << "'" <<std::endl;
 				std::cout << "checking real nick '" << nick << "'" <<std::endl;
 				if (!(_users[i].getNickname().compare(nick)))
@@ -166,7 +167,7 @@ class	Server{
 
 		Channel		getChannel(std::string name) {
 			for (int i = 0; i <= getNumberChannels(); i++) {
-			std::cout << "getting channem by name '" << _channels[i].getName() << "'" << std::endl;
+			std::cout << "getting channel by name '" << _channels[i].getName() << "'" << std::endl;
             if (!(_channels[i].getName().compare(name))) {
                 return _channels[i]; }
 			}
@@ -198,17 +199,35 @@ class	Server{
 			Channel channel = getChannel(user.getWhatChannel());
 			for (int i = 0; i <= channel.getNoUsersInChannel(); i++){
 				User receiver = channel.getUsersInChannel()[i];
-				if (channel.getUsersInChannel()[i].getFd() != user.getFd()){
-				send(receiver.getFd(), "\n", 2, 0);
-				send(receiver.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-				send(receiver.getFd(), " - ", 4, 0);
-				send(receiver.getFd(), channel.getName().data(), channel.getName().size(), 0);
-				send(receiver.getFd(), " - ", 4, 0);
-				send(receiver.getFd(), message.data(), message.size(), 0);
-				}
+				//if (channel.getUsersInChannel()[i].getFd() != user.getFd()){
+					if (checkReadyToWrite(channel.getUsersInChannel()[i].getFd())){
+						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
+					}
+					else {
+						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
+					}
+				//}
 			}
 		}
 
+		void    sendMessageToReceiver(int fd, std::string sender, std::string message){
+			if(checkReadyToWrite(fd)){
+					send(fd, "\n", 2, 0);
+                    send(fd, sender.data(), sender.size(), 0);
+                    send(fd, ": ", 2, 0);
+                    send(fd, message.data(), message.size(), 0);
+                    // send(fd, "\n", 2, 0); //TODO: double /n needed?
+			}
+			else {
+				std::cout << "[user] fd " << fd << " not ready to write" << std::endl;
+			}
+		}
+
+		bool	isCmd(std::string cmd){
+			return ((!(cmd.compare(0, 4, "PASS"))) ||
+						(!(cmd.compare(0, 4, "USER"))) ||
+						(!(cmd.compare(0, 1, "/"))));
+		}
 
 };
 
