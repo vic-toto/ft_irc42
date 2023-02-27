@@ -75,11 +75,12 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             if (!(data.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
                 std::string message = removeLeadingSpace(data.substr(5, (data.size())));
                 if (user.getVerification() == 0){
-                    if (!(verifyPassword(message))) {
+                    if (!(verifyPassword(message))){
                         user.setVerification(1);
                         send(client_fd, PWDACCEPT, 20, 0);
                         updateUser(user);
-                }} 
+                        }
+                    } 
             } else if (user.getVerification()) {  
                 if (!(data.compare(0, 4, "USER"))) {
                     std::string message = removeLeadingSpace(data.substr(5, (data.size())));
@@ -101,6 +102,8 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         user.NICK(message);
                         updateUser(user);
                     }
+            } else if (!(data.compare(0, 5, "/list"))){
+                    printChannels(user.getFd());
             } else if (!(data.compare(0, 5, "/join")) && !(user.getInChannel())) {
                     std::string message = removeLeadingSpace(data.substr(6, (data.size())));
                     if (message.empty() || message[0] != '#' || message.size() > 200)
@@ -113,7 +116,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                             user.setWhatChannel(channel.getName());
                             updateUser(user);
                             updateChannel(channel);
-                            // sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
+                            sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
                             // need to add a check for nickname changes. 
                             // if nick changes, it has to change in all chan
                             }
@@ -130,16 +133,12 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             } else if (user.getInChannel()){
                 if ((!(data.compare(0, 5, "/part"))) || (!(data.compare(0, 6, "/leave")))){
                     user.setInChannel(0);
-                    std::cout << "hello 1" << user.getInChannel() << std::endl;
                     Channel channel = getChannel(user.getWhatChannel());
-                    std::cout << "hello 2" << std::endl;
                     channel.removeUser(user);
-                    std::cout << "hello 3" << std::endl;
                     user.setWhatChannel("");
-                    std::cout << "hello 4" << std::endl;
                     updateChannel(channel);
                     updateUser(user);
-                    // sendMessageToChannel(user, " has left the server.\n"); // TODO: check \n
+                    sendMessageToChannel(user, " has left the server.\n"); // TODO: check \n
                     // have to add check if no users in channel, delete channel
                 }
                 else{

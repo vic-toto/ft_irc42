@@ -229,6 +229,16 @@ class	Server{
 						(!(cmd.compare(0, 1, "/"))));
 		}
 
+		void	printChannels(int fd){
+			if (_channels.size() != 0){
+				for (size_t i = 0; i < _channels.size(); i++){
+					sendMessageToReceiver(fd, _channels[i].getName(), "\n");
+					
+				}
+			} else
+				sendMessageToReceiver(fd, "Server: ", "No channels to show");
+		}
+
 };
 
 void sigint(int sign);
