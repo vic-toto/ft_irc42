@@ -68,6 +68,16 @@
         "__bits": "cpp",
         "compare": "cpp",
         "concepts": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "condition_variable": "cpp",
+        "numbers": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "semaphore": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "cinttypes": "cpp"
     }
 }
