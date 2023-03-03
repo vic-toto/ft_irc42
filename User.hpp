@@ -51,7 +51,7 @@ class User {
 
         User    NICK(std::string nickname)
         {
-            this->setNickname(nickname.substr(0, nickname.size() - 1));
+            this->setNickname(nickname.substr(0, nickname.size()));
             this->setNickVerification(1);
             send(this->getFd(), "\nNickname set to ", 17, 0);
             send(this->getFd(), this->getNickname().data(), nickname.size(), 0);

@@ -85,21 +85,35 @@ class	Server{
 		void	setServerSocket(int s){this->server_socket = s;}
 
 		//Security
-		bool 		verifyPassword(std::string password) {return (password.compare(0, this->getPassword().size(), this->getPassword())); };
+		bool 		verifyPassword(std::string password) {return (password.compare(0, password.size(), this->getPassword())); };
 
 		//Client related
-		bool		isUser(std::string nick)
+		bool		isUsernameTaken(std::string username)
 		{
-			for (int i = 0; i < getNumberUsers(); i++)
+			for (std::vector<User>::iterator i = _users.begin(); i < _users.end(); i++)
 			{
-				nick.substr(0, nick.size() - 1);
-				std::cout << "checking user nick '" << _users[i].getNickname() << "'" <<std::endl;
-				std::cout << "checking real nick '" << nick << "'" <<std::endl;
-				if (!(_users[i].getNickname().compare(nick)))
+				//nick.substr(0, nick.size() - 1);
+				std::cout << "checking vctor user username '" << (*i).getUsername() << "'" <<std::endl;
+				std::cout << "checking new real username '" << username << "'" <<std::endl;
+				if (!((*i).getUsername().compare(username)))
 					return true;
 			}
 			return false;
 		}
+
+		bool		isNicknameTaken(std::string nickname)
+		{
+			for (std::vector<User>::iterator i = _users.begin(); i < _users.end(); i++)
+			{
+				//nick.substr(0, nick.size() - 1);
+				std::cout << "checking vctor user username '" << (*i).getNickname() << "'" <<std::endl;
+				std::cout << "checking new real username '" << nickname << "'" <<std::endl;
+				if (!((*i).getNickname().compare(nickname)))
+					return true;
+			}
+			return false;
+		}
+
 		int			getNumberUsers() {return (_users.size()); }
 		void		handleClientMessage(std::string data, int client_fd);
 		//void		process_command(std::string data, int client_socket);

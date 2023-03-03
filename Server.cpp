@@ -60,7 +60,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 else {
                     receiverNick = receiverNick.substr(0, endNick);
                     std::cout << receiverNick << std::endl;
-                    if (isUser(receiverNick)){
+                    if (isUsernameTaken(receiverNick)){
                         User receiver = getUser(receiverNick);
                         std::string message = removeLeadingSpace(data.substr(receiverNick.size(), data.size()));
                         // message.substr(0, receiverNick.size());
@@ -73,30 +73,33 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 }
             }
             if (!(data.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
-                std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+                std::string message = cleanString(data.substr(5, (data.size())));
                 if (user.getVerification() == 0){
                     if (!(verifyPassword(message))){
                         user.setVerification(1);
-                        send(client_fd, PWDACCEPT, 20, 0);
+                        sendMessageToReceiver(client_fd, "\x1b[32mServer: ", "Password Ok\x1b[0m\n");
                         updateUser(user);
                         }
                     } 
             } else if (user.getVerification()) {  
                 if (!(data.compare(0, 4, "USER"))) {
-                    std::string message = removeLeadingSpace(data.substr(5, (data.size())));
+                    std::string message = cleanString(data.substr(5, (data.size())));
+                    std::cout << "user original str vs new str  '" << data.substr(5, (data.size())) << "'  '" << message << "'" << std::endl;
                     if (message.empty() || message[0] == '#' || message.size() > 200)
                         send(user.getFd(), "Invalid username\n", 22, 0);
-                    else if (isUser(message))
+                    else if (isUsernameTaken(message))
                         send(user.getFd(), "Username already in use\n", 24, 0);
                     else {
                         user.USER(message);
                         updateUser(user);
+                        std::cout << "final user added " << user.getUsername() << std::endl;
                     }
             } else if (!(data.compare(0, 5, "/nick"))) {
-                    std::string message = removeLeadingSpace(data.substr(6, (data.size())));
+                    std::string message = cleanString(data.substr(6, (data.size())));
+                    std::cout << "nick original str vs new str  '" << data.substr(6, (data.size())) << "'  '" << message <<  "'"<< std::endl;
                     if (message.empty() || message[0] == '#' || message.size() > 200)
                         send(user.getFd(), "Invalid nickname\n", 22, 0);
-                    else if (isUser(message))
+                    else if (isNicknameTaken(message))
                         send(user.getFd(), "Nickname already in use\n", 24, 0);
                     else {
                         user.NICK(message);
