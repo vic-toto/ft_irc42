@@ -92,9 +92,6 @@ class	Server{
 		{
 			for (std::vector<User>::iterator i = _users.begin(); i < _users.end(); i++)
 			{
-				//nick.substr(0, nick.size() - 1);
-				std::cout << "checking vctor user username '" << (*i).getUsername() << "'" <<std::endl;
-				std::cout << "checking new real username '" << username << "'" <<std::endl;
 				if (!((*i).getUsername().compare(username)))
 					return true;
 			}
@@ -105,9 +102,6 @@ class	Server{
 		{
 			for (std::vector<User>::iterator i = _users.begin(); i < _users.end(); i++)
 			{
-				//nick.substr(0, nick.size() - 1);
-				std::cout << "checking vctor user username '" << (*i).getNickname() << "'" <<std::endl;
-				std::cout << "checking new real username '" << nickname << "'" <<std::endl;
 				if (!((*i).getNickname().compare(nickname)))
 					return true;
 			}
