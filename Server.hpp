@@ -87,6 +87,14 @@ class	Server{
 		//Security
 		bool 		verifyPassword(std::string password) {return (password.compare(0, password.size(), this->getPassword())); };
 
+		bool		isSpace(std::string str) {
+			for (int i = 0; str[i]; i++){
+				if (str[i] == ' ')
+					return true;
+			}
+			return false;
+		}
+
 		//Client related
 		bool		isUsernameTaken(std::string username)
 		{
@@ -203,31 +211,32 @@ class	Server{
 		    return 0;
 		}
 
-		void	sendMessageToChannel(User const &user, std::string message){
-			Channel channel = getChannel(user.getWhatChannel());
-			for (int i = 0; i <= channel.getNoUsersInChannel(); i++){
-				User receiver = channel.getUsersInChannel()[i];
-				//if (channel.getUsersInChannel()[i].getFd() != user.getFd()){
-					if (checkReadyToWrite(channel.getUsersInChannel()[i].getFd())){
-						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
-					}
-					else {
-						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
-					}
-				//}
-			}
-		}
-
 		void    sendMessageToReceiver(int fd, std::string sender, std::string message){
 			if(checkReadyToWrite(fd)){
 					send(fd, "\n", 2, 0);
                     send(fd, sender.data(), sender.size(), 0);
-                    send(fd, ": ", 2, 0);
-                    send(fd, message.data(), message.size(), 0);
+                    send(fd, ": ", 3, 0);
+                    send(fd, message.data(), message.size() - 1, 0);
                     // send(fd, "\n", 2, 0); //TODO: double /n needed?
 			}
 			else {
 				std::cout << "[user] fd " << fd << " not ready to write" << std::endl;
+			}
+		}
+
+		void	sendMessageToChannel(User const &user, std::string message){
+			Channel channel = getChannel(user.getWhatChannel());
+			for (std::vector<User>::iterator i = channel.getUsersInChannel().begin(); i < channel.getUsersInChannel().end(); i++){
+				User receiver = (*i);
+				if (receiver.getFd() != user.getFd()){
+					if (checkReadyToWrite(receiver.getFd())){
+						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
+						sendMessageToReceiver(receiver.getFd(), channel.getName(), "");
+						clientConsole(receiver);
+					}
+					else 
+						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
+				}
 			}
 		}
 

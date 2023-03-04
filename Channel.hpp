@@ -28,6 +28,7 @@ private:
     /* data */
 public:
     Channel() {}
+    Channel(std::string name) {this->name = name;};
     Channel(std::string name, std::string password, User channelOperator);
     Channel(std::string name, std::string password, User channelOperator, int invite);
     ~Channel() {};

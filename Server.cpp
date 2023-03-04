@@ -48,6 +48,7 @@ int Server::start(int port)
 void	Server::handleClientMessage(std::string data, int client_fd) 
 {
     User user = getUser(client_fd);
+    std::cout << "data str incoming  " << data << std::endl;
     if(is_char_or_digit(data)) {
         if (isCmd(data)){
             if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification())){
@@ -85,11 +86,10 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     else {
                         user.USER(message);
                         updateUser(user);
-                        std::cout << "final user added " << user.getUsername() << std::endl;
                     }
                 } else if (!(data.compare(0, 5, "/nick")) && (user.getUserVerification())) {
                         std::string message = cleanString(data.substr(6, (data.size())));
-                        if (message.empty() || message[0] == '#' || message.size() > 200)
+                        if (message.empty() || message[0] == '#' || message.size() > 9)
                             sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Invalid nickname\x1b[0m\n\n");
                         else if (isNicknameTaken(message))
                             sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Nickname already in use\x1b[0m\n\n");
@@ -100,10 +100,11 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 } else if (!(data.compare(0, 5, "/list"))&& (user.getNickVerification())){
                         printChannels(user.getFd());
                 } else if (!(data.compare(0, 5, "/join")) && (!(user.getInChannel()) && ((user.getNickVerification())))) {
-                        std::string message = removeLeadingSpace(data.substr(6, (data.size())));
-                        if (message.empty() || message[0] != '#' || message.size() > 200)
-                            send(user.getFd(), "Invalid channel name\n", 22, 0);
-                        if (channelExists(message)){
+                        std::string message = cleanString(data.substr(5, (data.size())));
+                        if (message.empty() || message[0] != '#' || message.size() > 200 || isSpace(message))
+                            sendMessageToReceiver(user.getFd(), "Server: ", "Invalid channel name\n");
+                        else if (channelExists(message)){
+                            std::cout << "channel exists\n";
                             Channel channel = getChannel(message);
                             if (!(channel.getblackList(user.getNickname()))){
                                 channel.addUser(user);
@@ -112,18 +113,19 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                                 updateUser(user);
                                 updateChannel(channel);
                                 sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
+                                std::cout << "arrivo\n";
                                 // need to add a check for nickname changes. 
                                 // if nick changes, it has to change in all chan
                                 }
                         } else {
-                            Channel channel;
-                            channel.setName(message.substr(0, message.size() - 1));
-                            channel.setChannelOperator(user);
-                            channel.addUser(user);
+                            Channel *channel = new Channel(message);
+                            channel->setName(message.substr(0, message.size()));
+                            channel->setChannelOperator(user);
+                            channel->addUser(user);
                             user.setInChannel(1);
-                            user.setWhatChannel(message.substr(0, message.size() - 1));
+                            user.setWhatChannel(channel->getName());
                             updateUser(user);
-                            addChannel(channel);
+                            addChannel(*channel);
                         }
                 } else if (user.getInChannel() && (user.getNickVerification())){
                     if (!(data.compare(0, 5, "/part")) || (!(data.compare(0, 6, "/leave")))){
@@ -136,10 +138,6 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         sendMessageToChannel(user, " has left the server.\n"); // TODO: check \n
                         // have to add check if no users in channel, delete channel
                     }
-                    else{
-                        std::string message = removeLeadingSpace(data.substr(5, (data.size())));
-                        sendMessageToChannel(user, data);
-                    }
                 } else if (!(data.compare(0, 5, "/quit")) && (user.getNickVerification()))
                     sigint(SIGINT); // add delete users and other memory shit
                  else if (user.getNickVerification())
@@ -147,6 +145,8 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             }
         }   
     }
+    if (user.getInChannel())
+            sendMessageToChannel(user, data);
     clientConsole(user);
 }
 
@@ -174,9 +174,7 @@ void	Server::go()
             sockaddr_in client_sock;
             socklen_t client_sock_len = sizeof(client_sock); //accept incoming connections
            	int  client_socket = accept(this->server_socket, (sockaddr*)&client_sock, &client_sock_len);
-            printf("client socket %d\n\n", client_socket);
-            if (client_socket < 0)
-            {
+            if (client_socket < 0){
                 std::cerr << "Error accepting connection: " << strerror(errno) << std::endl;
                 continue;
             }
@@ -212,7 +210,7 @@ void	Server::go()
                 }
                 std::string message(buffer, ret);
                 std::cout << message << std::endl;
-                removeLeadingSpace(message);
+                cleanString(message);
                 //
                 int check = poll(&fds[i], 1, 0);
                 if (check < 0)
@@ -220,7 +218,6 @@ void	Server::go()
                     std::cerr << "Error polling: " << strerror(errno) << std::endl;
                     continue;
                 }
-                std::cout << message << std::endl;
                 if (fds[i].revents & POLLOUT)
                     this->handleClientMessage(message, fds[i].fd);
             
@@ -243,9 +240,10 @@ void    clientConsole(User user)
             return ; 
         }
     }
+    std::cout << "user " << user.getNickname() << " in channel " << user.getInChannel() << std::endl;
     if (user.getInChannel()){
         send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
-        send(user.getFd(), " - ", 4, 0);}
+        send(user.getFd(), ": ", 3, 0);}
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 4, 0);
     
