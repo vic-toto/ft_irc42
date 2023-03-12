@@ -106,7 +106,9 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         std::string message = cleanString(data.substr(5, (data.size())));
                         if (message.empty() || message[0] != '#' || message.size() > 200 || isSpace(message))
                             sendMessageToReceiver(user.getFd(), "Server: ", "Invalid channel name\n");
-                        else if (channelExists(message)){
+                        else if (){
+
+                        } else if (channelExists(message)){
                             std::cout << "channel exists\n";
                             Channel channel = getChannel(message);
                             if (!(channel.getblackList(user.getNickname()))){
@@ -117,9 +119,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                                     user.setWhatChannel(channel.getName());
                                     updateUser(user);
                                     updateChannel(channel);
-                                    sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
-                                    // need to add a check for nickname changes. 
-                                    // if nick changes, it has to change in all chan
+                                    sendMessageToChannel(user, " has joined the channel.\n");
                                     }
                                 }
                                 else
@@ -257,12 +257,8 @@ void    clientConsole(User user)
             return ; }
         if (!(user.getNickVerification())) {
             send(user.getFd(), "\nPlease set nickname with /nick your_nickname\n", 46, 0);
-            return ; 
-        }
+            return ; }
     }
-    if (user.getInChannel()){
-        send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
-        send(user.getFd(), ": ", 3, 0);}
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 4, 0);
 }
