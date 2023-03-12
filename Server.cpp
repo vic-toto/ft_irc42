@@ -106,9 +106,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         std::string message = cleanString(data.substr(5, (data.size())));
                         if (message.empty() || message[0] != '#' || message.size() > 200 || isSpace(message))
                             sendMessageToReceiver(user.getFd(), "Server: ", "Invalid channel name\n");
-                        else if (){
-
-                        } else if (channelExists(message)){
+                        else if (channelExists(message)){
                             std::cout << "channel exists\n";
                             Channel channel = getChannel(message);
                             if (!(channel.getblackList(user.getNickname()))){
@@ -123,7 +121,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                                     }
                                 }
                                 else
-                                    sendMessageToReceiver(user.getFd(), "Server", "Channel limit reached\n");
+                                    sendMessageToReceiver(user.getFd(), "Server: ", " You are blacklisted\n");
                         } else {
                             Channel *channel = new Channel(message);
                             channel->setName(message.substr(0, message.size()));

@@ -274,11 +274,11 @@ class	Server{
             else {
                 receiverNick = receiverNick.substr(0, endNick);
                 std::cout << receiverNick << std::endl;
-                if (isUsernameTaken(receiverNick)){
+                if (isNicknameTaken(receiverNick)){
                     User receiver = getUser(receiverNick);
-                    std::string message = cleanString(data.substr(receiverNick.size(), data.size()));
-                    if (message.size() >= 512)
-                        sendMessageToReceiver(receiver.getFd(), user.getNickname(), cleanString(message));
+                    std::string message = cleanString(data.substr(endNick, data.size()));
+                    if (message.size() <= 512)
+                        sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
                     else
                         sendMessageToReceiver(user.getFd(), "Server", "Message too long\n");
                 } else 

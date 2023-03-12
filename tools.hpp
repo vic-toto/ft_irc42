@@ -46,5 +46,4 @@ inline int substr_to_first_space_or_end(const std::string &str) {
   return pos != std::string::npos ? pos : 0;
 }
 
-
 #endif
