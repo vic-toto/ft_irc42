@@ -50,26 +50,6 @@ void	Server::handleClientMessage(std::string data, int client_fd)
     std::cout << "data str incoming  " << data << std::endl;
     if(is_char_or_digit(data)) {
         if (isCmd(data)){
-            if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification())){
-                MSG(data, user);
-                //std::string receiverNick = cleanString(data.substr(4, (data.size())));
-                //int endNick = substr_to_first_space_or_end(receiverNick);
-                //if (endNick == 0)
-                //    sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
-                //else {
-                //    receiverNick = receiverNick.substr(0, endNick);
-                //    std::cout << receiverNick << std::endl;
-                //    if (isUsernameTaken(receiverNick)){
-                //        User receiver = getUser(receiverNick);
-                //        std::string message = cleanString(data.substr(receiverNick.size(), data.size()));
-                //        if (message.size() >= 512)
-                //            sendMessageToReceiver(receiver.getFd(), user.getNickname(), cleanString(message));
-                //        else
-                //            sendMessageToReceiver(user.getFd(), "Server", "Message too long\n");
-                //    } else 
-                //        sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
-                //}
-            }
             if (!(data.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
                 std::string message = cleanString(data.substr(5, (data.size())));
                 if (!(user.getVerification())){
@@ -158,7 +138,9 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 
                 } else if (!(data.compare(0, 5, "/quit")) && (user.getNickVerification()))
                     sigint(SIGINT); // add delete users and other memory shit
-                 else if (user.getNickVerification())
+                if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification()))
+                    MSG(data, user);
+                else if (user.getNickVerification())
                     sendMessageToReceiver(client_fd, "Server :", "Invalid Command\n");
             }
         }   
