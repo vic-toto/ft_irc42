@@ -1,7 +1,4 @@
 //#include "colors.h"
-#include <stdlib.h>
-#include <iostream> 
-#include <signal.h>
 #include "Server.hpp"
 
 bool server_run = true;

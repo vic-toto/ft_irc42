@@ -1,6 +1,7 @@
 #ifndef USER_HPP
 #define USER_HPP
-#include "Server.hpp"
+
+class Server;
 
 class User {
 
@@ -52,10 +53,18 @@ class User {
         void setChannelVerification(bool type)     { this->inChannel = type; }
         void setInChannel(int n)                {this->inChannel = n;}
         void setWhatChannel(std::string channelName) {this->whatChannel = channelName; }
-        int  getInChannel() {return inChannel;}
+        int  getInChannel() {return inChannel;} const
         std::string getWhatChannel() const  {return this->whatChannel;}
         pollfd  getPollFd() {return this->_client;}
         //cmds
+        bool    channelLimit(){
+            if (this->noChannels < 10)
+                return (false);
+            return true;
+        }
+
+        void    increaseChannelNo() {this->noChannels += 1;}
+        void    decreaseChannelNo() {this->noChannels -= 1;}
 
         User    USER(std::string username)
         {
@@ -76,6 +85,7 @@ class User {
             send(this->getFd(), "\n", 2, 0);
             return (*this);
         }
+
 
 };
 

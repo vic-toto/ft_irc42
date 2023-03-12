@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "tools.hpp"
 #include "clientMessages.hpp"
 // STEP 1
 
@@ -52,20 +51,24 @@ void	Server::handleClientMessage(std::string data, int client_fd)
     if(is_char_or_digit(data)) {
         if (isCmd(data)){
             if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification())){
-                std::string receiverNick = removeLeadingSpace(data.substr(4, (data.size())));
-                int endNick = substr_to_first_space_or_end(receiverNick);
-                if (endNick == 0)
-                    sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
-                else {
-                    receiverNick = receiverNick.substr(0, endNick);
-                    std::cout << receiverNick << std::endl;
-                    if (isUsernameTaken(receiverNick)){
-                        User receiver = getUser(receiverNick);
-                        std::string message = removeLeadingSpace(data.substr(receiverNick.size(), data.size()));
-                        sendMessageToReceiver(receiver.getFd(), user.getNickname(), cleanString(message));
-                    } else 
-                        sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
-                }
+                MSG(data, user);
+                //std::string receiverNick = cleanString(data.substr(4, (data.size())));
+                //int endNick = substr_to_first_space_or_end(receiverNick);
+                //if (endNick == 0)
+                //    sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
+                //else {
+                //    receiverNick = receiverNick.substr(0, endNick);
+                //    std::cout << receiverNick << std::endl;
+                //    if (isUsernameTaken(receiverNick)){
+                //        User receiver = getUser(receiverNick);
+                //        std::string message = cleanString(data.substr(receiverNick.size(), data.size()));
+                //        if (message.size() >= 512)
+                //            sendMessageToReceiver(receiver.getFd(), user.getNickname(), cleanString(message));
+                //        else
+                //            sendMessageToReceiver(user.getFd(), "Server", "Message too long\n");
+                //    } else 
+                //        sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
+                //}
             }
             if (!(data.compare(0, 4, "PASS"))) { // add if client is authenticated yet to unlock user and other cmds, to do
                 std::string message = cleanString(data.substr(5, (data.size())));
@@ -107,16 +110,20 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                             std::cout << "channel exists\n";
                             Channel channel = getChannel(message);
                             if (!(channel.getblackList(user.getNickname()))){
-                                channel.addUser(user);
-                                user.setInChannel(1);
-                                user.setWhatChannel(channel.getName());
-                                updateUser(user);
-                                updateChannel(channel);
-                                sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
-                                std::cout << "arrivo\n";
-                                // need to add a check for nickname changes. 
-                                // if nick changes, it has to change in all chan
+                                    std::cout << "arrivo\n";
+                                if (!(user.channelLimit())){
+                                    channel.addUser(user);
+                                    user.setInChannel(1);
+                                    user.setWhatChannel(channel.getName());
+                                    updateUser(user);
+                                    updateChannel(channel);
+                                    sendMessageToChannel(user, " has joined the channel.\n"); // TODO: check \n
+                                    // need to add a check for nickname changes. 
+                                    // if nick changes, it has to change in all chan
+                                    }
                                 }
+                                else
+                                    sendMessageToReceiver(user.getFd(), "Server", "Channel limit reached\n");
                         } else {
                             Channel *channel = new Channel(message);
                             channel->setName(message.substr(0, message.size()));
@@ -124,20 +131,33 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                             channel->addUser(user);
                             user.setInChannel(1);
                             user.setWhatChannel(channel->getName());
+                            user.increaseChannelNo();
                             updateUser(user);
                             addChannel(*channel);
                         }
                 } else if (user.getInChannel() && (user.getNickVerification())){
-                    if (!(data.compare(0, 5, "/part")) || (!(data.compare(0, 6, "/leave")))){
-                        user.setInChannel(0);
                         Channel channel = getChannel(user.getWhatChannel());
+                    if (!(data.compare(0, 5, "/part")) || (!(data.compare(0, 6, "/leave")))){
+                        sendMessageToChannel(user, " has left the channel.\n"); // TODO: check \n
                         channel.removeUser(user);
+                        user.setInChannel(0);
                         user.setWhatChannel("");
-                        updateChannel(channel);
                         updateUser(user);
-                        sendMessageToChannel(user, " has left the server.\n"); // TODO: check \n
                         // have to add check if no users in channel, delete channel
+                    } else if (!(data.compare(0, 5, "/kick")) && (isOperator(user.getNickname(), channel.getChannelOperator().getNickname()))) {
+                        std::string userToRemove(data.substr(5, data.size()));
+                        userToRemove = cleanString(userToRemove);
+                        std::cout << "here usetoremove '" << userToRemove << "'\n";
+                        User removeUser = getUser(userToRemove);
+                        sendMessageToChannel(removeUser, " was kicked from the channel.\n");
+                        channel.removeUser(removeUser);
+                        removeUser.setInChannel(0);
+                        removeUser.setWhatChannel("");
+                        updateUser(removeUser);
+                        send(removeUser.getFd(), "\n", 1, 0);
                     }
+                    updateChannel(channel);
+                
                 } else if (!(data.compare(0, 5, "/quit")) && (user.getNickVerification()))
                     sigint(SIGINT); // add delete users and other memory shit
                  else if (user.getNickVerification())
@@ -240,11 +260,9 @@ void    clientConsole(User user)
             return ; 
         }
     }
-    std::cout << "user " << user.getNickname() << " in channel " << user.getInChannel() << std::endl;
     if (user.getInChannel()){
         send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
         send(user.getFd(), ": ", 3, 0);}
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 4, 0);
-    
 }

@@ -17,10 +17,14 @@
 #include <iostream>
 #include <sstream>
 #include <cstring>
+#include <stdlib.h>
+#include <iostream> 
+#include <signal.h>
 
 #include <map>
 #include <queue>
 #include <vector>
+#include "tools.hpp"
 #include "User.hpp"
 #include "Channel.hpp"
 
@@ -34,6 +38,15 @@
 # define SERV_NAME std::string("VIRC_SERVER")
 # define UMODES std::string("ov") // available user _modes
 # define CMODES std::string("bkomstnv") // available channel _modes
+
+inline std::string cleanString(std::string str) {
+  std::size_t start = str.find_first_not_of(" \t\r\n");
+  std::size_t end = str.find_last_not_of(" \t\r\n");
+  if (start == std::string::npos || end == std::string::npos) {
+    return "";
+  }
+  return str.substr(start, end - start + 1);
+}
 
 class	Server{
 	private:
@@ -80,6 +93,7 @@ class	Server{
 		int			getUser(int client_socket, User& user);
 		std::string	getPort() {return (this->__port);};
 		std::string getPassword() { return (this->__pwd);};
+		int			getNumberUsers() {return (_users.size()); }
 		
 		//Setters
 		void	setServerSocket(int s){this->server_socket = s;}
@@ -89,7 +103,7 @@ class	Server{
 
 		bool		isSpace(std::string str) {
 			for (int i = 0; str[i]; i++){
-				if (str[i] == ' ')
+				if (str[i] == ' ' || str[i] == 7 || str[i] == ',')
 					return true;
 			}
 			return false;
@@ -116,9 +130,7 @@ class	Server{
 			return false;
 		}
 
-		int			getNumberUsers() {return (_users.size()); }
 		void		handleClientMessage(std::string data, int client_fd);
-		//void		process_command(std::string data, int client_socket);
 		User		getUser(int fd) {
 			for (int i = 0; i < getNumberUsers(); i++) {
             if (_users[i].getFd() == fd) {
@@ -183,7 +195,6 @@ class	Server{
 
 		Channel		getChannel(std::string name) {
 			for (int i = 0; i <= getNumberChannels(); i++) {
-			std::cout << "getting channel by name '" << _channels[i].getName() << "'" << std::endl;
             if (!(_channels[i].getName().compare(name))) {
                 return _channels[i]; }
 			}
@@ -232,7 +243,6 @@ class	Server{
 					if (checkReadyToWrite(receiver.getFd())){
 						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
 						sendMessageToReceiver(receiver.getFd(), channel.getName(), "");
-						clientConsole(receiver);
 					}
 					else 
 						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
@@ -256,8 +266,31 @@ class	Server{
 				sendMessageToReceiver(fd, "Server: ", "No channels to show");
 		}
 
+		void    MSG(std::string data, User user){
+            std::string receiverNick = cleanString(data.substr(4, (data.size())));
+            int endNick = substr_to_first_space_or_end(receiverNick);
+            if (endNick == 0)
+                sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
+            else {
+                receiverNick = receiverNick.substr(0, endNick);
+                std::cout << receiverNick << std::endl;
+                if (isUsernameTaken(receiverNick)){
+                    User receiver = getUser(receiverNick);
+                    std::string message = cleanString(data.substr(receiverNick.size(), data.size()));
+                    if (message.size() >= 512)
+                        sendMessageToReceiver(receiver.getFd(), user.getNickname(), cleanString(message));
+                    else
+                        sendMessageToReceiver(user.getFd(), "Server", "Message too long\n");
+                } else 
+                    sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
+            }
+        }
+
+		bool isOperator(std::string nick, std::string channelOperatorNick) {return (!(nick.compare(channelOperatorNick)));}
+
 };
 
 void sigint(int sign);
+
 
 #endif

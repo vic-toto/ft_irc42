@@ -2,7 +2,7 @@
 #define TOOLS_HPP
 
 
-void print_fd_set(fd_set *set) {
+inline void print_fd_set(fd_set *set) {
     for (int i = 0; i < FD_SETSIZE; i++) {
         if (FD_ISSET(i, set)) {
             printf("%d ", i);
@@ -11,7 +11,7 @@ void print_fd_set(fd_set *set) {
     printf("\n");
 }
 
-std::string trimWhitespace(std::string s) {
+inline std::string trimWhitespace(std::string s) {
     // Find the first non-whitespace character
     size_t first = s.find_first_not_of(" \t\r\n");
 
@@ -28,7 +28,7 @@ std::string trimWhitespace(std::string s) {
     return s;
 }
 
-std::string removeLeadingSpace(std::string str)
+inline std::string removeLeadingSpace(std::string str)
 {
     std::size_t firstNonSpace = str.find_first_not_of(' ');
     if (firstNonSpace == 0)
@@ -37,22 +37,14 @@ std::string removeLeadingSpace(std::string str)
     return str;
 }
 
-bool is_char_or_digit(const std::string &str) {
+inline bool is_char_or_digit(const std::string &str) {
   return str.length() > 4 ;
 }
 
-int substr_to_first_space_or_end(const std::string &str) {
+inline int substr_to_first_space_or_end(const std::string &str) {
   std::size_t pos = str.find(' ');
   return pos != std::string::npos ? pos : 0;
 }
 
-std::string cleanString(std::string str) {
-  std::size_t start = str.find_first_not_of(" \t\r\n");
-  std::size_t end = str.find_last_not_of(" \t\r\n");
-  if (start == std::string::npos || end == std::string::npos) {
-    return "";
-  }
-  return str.substr(start, end - start + 1);
-}
 
 #endif

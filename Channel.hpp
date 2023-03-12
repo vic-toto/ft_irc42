@@ -38,6 +38,7 @@ public:
     void    setChannelOperator(User user) {this->channelOperator = user;}
     void    addUser(User user) {usersInChannel.push_back(user);}
     
+    User    getChannelOperator() {return this->channelOperator;}
     void removeUser(User &user) {
         for (std::vector<User>::iterator it = usersInChannel.begin(); it != usersInChannel.end(); it++) {
             if (it->getNickname() == user.getNickname()) {
