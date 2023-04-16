@@ -257,8 +257,9 @@ class	Server{
 		void	printChannels(int fd){
 			if (_channels.size() != 0){
 				for (size_t i = 0; i < _channels.size(); i++){
-					sendMessageToReceiver(fd, _channels[i].getName(), "\n");
-					
+					send(fd, _channels[i].getName().data(), _channels[i].getName().size(), 0);
+					send(fd, " ", 2, 0);
+					send(fd, _channels[i].getChannelOperator().getNickname().data(), _channels[i].getChannelOperator().getNickname().size(), 0);
 				}
 			} else
 				sendMessageToReceiver(fd, "Server: ", "No channels to show");

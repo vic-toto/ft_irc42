@@ -124,7 +124,6 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                     } else if (!(data.compare(0, 5, "/kick")) && (isOperator(user.getNickname(), channel.getChannelOperator().getNickname()))) {
                         std::string userToRemove(data.substr(5, data.size()));
                         userToRemove = cleanString(userToRemove);
-                        std::cout << "here usetoremove '" << userToRemove << "'\n";
                         User removeUser = getUser(userToRemove);
                         sendMessageToChannel(removeUser, " was kicked from the channel.\n");
                         channel.removeUser(removeUser);
@@ -137,8 +136,8 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 
                 } else if (!(data.compare(0, 5, "/quit")) && (user.getNickVerification()))
                     sigint(SIGINT); // add delete users and other memory shit
-                else if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification()))
-                    MSG(data, user);
+                else if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification())){
+                    MSG(data, user); exit(0);}
                 else if (user.getNickVerification())
                     sendMessageToReceiver(client_fd, "421 ", "Invalid Command\n");
             }

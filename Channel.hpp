@@ -54,9 +54,8 @@ public:
     int         getNoUsersInChannel() {return usersInChannel.size();}
     bool	getblackList(std::string nick){
 			for (unsigned long i = 0; i < blackList.size(); i++) {
-      		if (blackList[i].getNickname() == nick) {
+      		if (blackList[i].getNickname() == nick)
       		  return true;
-      		}
 			}
 			return false;
 		}
