@@ -215,7 +215,6 @@ class	Server{
 		    } else if (ret == 0) {
 		        std::cout << "Fd " << fd << " for User not ready for writing." << std::endl;
 		    }
-
 		    if (pfd.revents & POLLOUT)
 		        return 1;
 
@@ -241,8 +240,7 @@ class	Server{
 				User receiver = (*i);
 				if (receiver.getFd() != user.getFd()){
 					if (checkReadyToWrite(receiver.getFd())){
-						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
-						sendMessageToReceiver(receiver.getFd(), channel.getName(), "");
+						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message + "\n");
 					}
 					else 
 						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
@@ -270,7 +268,7 @@ class	Server{
             std::string receiverNick = cleanString(data.substr(4, (data.size())));
             int endNick = substr_to_first_space_or_end(receiverNick);
             if (endNick == 0)
-                sendMessageToReceiver(user.getFd(), "Server", "Error, missing message \n");
+                sendMessageToReceiver(user.getFd(), "461", " Not enough parameters\n");
             else {
                 receiverNick = receiverNick.substr(0, endNick);
                 std::cout << receiverNick << std::endl;
@@ -282,7 +280,7 @@ class	Server{
                     else
                         sendMessageToReceiver(user.getFd(), "Server", "Message too long\n");
                 } else 
-                    sendMessageToReceiver(user.getFd(), "Error, no user with nick ", receiverNick);
+                    sendMessageToReceiver(user.getFd(), "401 no user with nick ", receiverNick);
             }
         }
 

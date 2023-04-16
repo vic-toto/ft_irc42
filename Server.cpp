@@ -63,9 +63,9 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 if (!(data.compare(0, 4, "USER")) && (!user.getUserVerification())) {
                     std::string message = cleanString(data.substr(5, (data.size())));
                     if (message.empty() || message[0] == '#' || message.size() > 200)
-                        sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Invalid Username\x1b[0m\n\n");
+                        sendMessageToReceiver(user.getFd(), "\x1b[31m ", "Invalid Username\x1b[0m\n\n");
                     else if (isUsernameTaken(message))
-                        sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Username already in use\x1b[0m\n\n");
+                        sendMessageToReceiver(user.getFd(), "\x1b[31m462 = ", "User already registered!\x1b[0m\n\n");
                     else {
                         user.USER(message);
                         updateUser(user);
@@ -75,7 +75,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                         if (message.empty() || message[0] == '#' || message.size() > 9)
                             sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Invalid nickname\x1b[0m\n\n");
                         else if (isNicknameTaken(message))
-                            sendMessageToReceiver(user.getFd(), "\x1b[31mServer :", "Nickname already in use\x1b[0m\n\n");
+                            sendMessageToReceiver(user.getFd(), "\x1b[31m433 =", "Nickname already in use\x1b[0m\n\n");
                         else {
                             user.NICK(message);
                             updateUser(user);
@@ -85,9 +85,8 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 } else if (!(data.compare(0, 5, "/join")) && (!(user.getInChannel()) && ((user.getNickVerification())))) {
                         std::string message = cleanString(data.substr(5, (data.size())));
                         if (message.empty() || message[0] != '#' || message.size() > 200 || isSpace(message))
-                            sendMessageToReceiver(user.getFd(), "Server: ", "Invalid channel name\n");
+                            sendMessageToReceiver(user.getFd(), "479 ", "Illegal channel name\n");
                         else if (channelExists(message)){
-                            std::cout << "channel exists\n";
                             Channel channel = getChannel(message);
                             if (!(channel.getblackList(user.getNickname()))){
                                     std::cout << "arrivo\n";
@@ -138,14 +137,14 @@ void	Server::handleClientMessage(std::string data, int client_fd)
                 
                 } else if (!(data.compare(0, 5, "/quit")) && (user.getNickVerification()))
                     sigint(SIGINT); // add delete users and other memory shit
-                if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification()))
+                else if (!(data.compare(0, 4, "/msg")) && (user.getNickVerification()))
                     MSG(data, user);
                 else if (user.getNickVerification())
-                    sendMessageToReceiver(client_fd, "Server :", "Invalid Command\n");
+                    sendMessageToReceiver(client_fd, "421 ", "Invalid Command\n");
             }
         }   
     }
-    if (user.getInChannel())
+    else if (user.getInChannel())
             sendMessageToChannel(user, data);
     clientConsole(user);
 }
@@ -191,7 +190,7 @@ void	Server::go()
             this->addUser(*user);
             if (!(user->getVerification())){
                 if (checkReadyToWrite(user->getFd())){
-                    send(user->getFd(), WELCOME, 84, 0);}
+                    send(user->getFd(), WELCOME, 113, 0);}
             }
         }
         for (std::vector<pollfd>::size_type i = 1; i < fds.size(); i++)
@@ -211,15 +210,7 @@ void	Server::go()
                 std::string message(buffer, ret);
                 std::cout << message << std::endl;
                 cleanString(message);
-                //
-                int check = poll(&fds[i], 1, 0);
-                if (check < 0)
-                {
-                    std::cerr << "Error polling: " << strerror(errno) << std::endl;
-                    continue;
-                }
-                if (fds[i].revents & POLLOUT)
-                    this->handleClientMessage(message, fds[i].fd);
+                this->handleClientMessage(message, fds[i].fd);
             
 		    }
 	    }
@@ -229,7 +220,7 @@ void	Server::go()
 void    clientConsole(User user)
 {
     if (!(user.getVerification())){
-        send(user.getFd(), WELCOME, 84, 0);
+        send(user.getFd(), WELCOME, 113, 0);
         return ;
     } else {
         if (!(user.getUserVerification())){
@@ -239,6 +230,8 @@ void    clientConsole(User user)
             send(user.getFd(), "\nPlease set nickname with /nick your_nickname\n", 46, 0);
             return ; }
     }
+    if (user.getInChannel())
+        send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
     send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
     send(user.getFd(), " - ", 4, 0);
 }
