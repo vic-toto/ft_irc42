@@ -240,7 +240,7 @@ class	Server{
 				User receiver = (*i);
 				if (receiver.getFd() != user.getFd()){
 					if (checkReadyToWrite(receiver.getFd())){
-						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message + "\n");
+						sendMessageToReceiver(receiver.getFd(), user.getNickname(), message);
 					}
 					else 
 						std::cout << "[channel] fd " << receiver.getFd() << " not ready to write" << std::endl;
