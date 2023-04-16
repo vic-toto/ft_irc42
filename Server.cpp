@@ -144,7 +144,7 @@ void	Server::handleClientMessage(std::string data, int client_fd)
             }
         }   
     }
-    else if (user.getInChannel())
+    if (user.getInChannel())
             sendMessageToChannel(user, data);
     clientConsole(user);
 }
@@ -230,8 +230,8 @@ void    clientConsole(User user)
             send(user.getFd(), "\nPlease set nickname with /nick your_nickname\n", 46, 0);
             return ; }
     }
-    if (user.getInChannel())
-        send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
-    send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
-    send(user.getFd(), " - ", 4, 0);
+    //if (user.getInChannel())
+    //    send(user.getFd(), user.getWhatChannel().data(), user.getWhatChannel().size(), 0);
+    //send(user.getFd(), user.getNickname().data(), user.getNickname().size(), 0);
+    //send(user.getFd(), " - ", 4, 0);
 }
